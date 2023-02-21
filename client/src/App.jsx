@@ -8,11 +8,20 @@ import PublicRoute from "./layouts/PublicRoute";
 
 // Authentication pages
 import AuthRoute from "./layouts/AuthRoute";
+const Login = lazy(() => import("./pages/Auth/Login"));
+const Register = lazy(() => import("./pages/Auth/Register"));
+const ForgotPassword = lazy(() => import("./pages/Auth/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/Auth/ResetPassword"));
+const VerifyEmail = lazy(() => import("./pages/Auth/VerifyEmail"));
+const ResendVerificationEmail = lazy(() =>
+  import("./pages/Auth/ResendVerificationEmail")
+);
 
 // Pages only visible to authenticated users
 import ProtectedRoute from "./layouts/ProtectedRoute";
 import Schedule from "./pages/Protected/Schedule";
 import TweetGenerator from "./pages/Protected/TweetGenerator";
+import TwitterRedirect from "./pages/Protected/TwitterRedirect";
 
 function App() {
   return (
@@ -20,14 +29,22 @@ function App() {
       <Routes>
         <Route path="/" element={<PublicRoute />}></Route>
 
-        <Route path="/auth" element={<AuthRoute />}></Route>
+        <Route path="/auth" element={<AuthRoute />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/resend-email" element={<ResendVerificationEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+        </Route>
 
         <Route path="/a" element={<ProtectedRoute />}>
           <Route path="/schedule" element={<Schedule />} />
           <Route path="/tweet-generator" element={<TweetGenerator />} />
+          <Route path="/twitter-redirect" element={<TwitterRedirect />} />
         </Route>
       </Routes>
-      <Toaster position="bottom-right" />
+      <Toaster position="top-center" />
     </>
   );
 }

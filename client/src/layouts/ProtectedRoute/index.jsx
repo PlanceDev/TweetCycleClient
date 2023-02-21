@@ -8,8 +8,8 @@ export default function ProtectedRoute() {
   const [user] = useUser();
   const navigate = useNavigate();
 
-  if (!user.isAuth) {
-    return navigate("/");
+  if (!localStorage.getItem("isAuth")) {
+    return navigate("/auth/login");
   } else {
     return (
       <>

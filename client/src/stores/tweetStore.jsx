@@ -36,21 +36,41 @@ export function TweetProvider(props) {
       },
 
       // Upload an image to the tweet
-      handleImageUpload(e, id) {
+      async handleImageUpload(e, id) {
         const file = e.target.files[0];
-        const reader = new FileReader();
+        const fileData = await readImageFile(file);
+        const base64Image = fileData.split(",")[1];
 
-        reader.onload = (e) => {
-          setTweet(
-            (item) => item.id === id,
-            (item) => ({
-              item,
-              attachments: [...item.attachments, e.target.result],
-            })
-          );
-        };
+        setTweet({
+          ...tweet,
+          thread: tweet.thread.map((item) => {
+            if (item.id === id) {
+              return {
+                ...item,
+                attachments: [
+                  ...item.attachments,
+                  { name: file.name, b64: base64Image },
+                ],
+              };
+            }
+            return item;
+          }),
+        });
 
-        reader.readAsDataURL(file);
+        function readImageFile(file) {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+
+            reader.onload = () => {
+              resolve(reader.result);
+            };
+
+            reader.onerror = (error) => {
+              reject(error);
+            };
+          });
+        }
       },
 
       // Add a new tweet to the thread
@@ -60,7 +80,7 @@ export function TweetProvider(props) {
           thread: [
             ...tweet.thread,
             {
-              id: tweet.thread.length + 1,
+              id: tweet.thread.length,
               body: "",
               attachments: [],
             },

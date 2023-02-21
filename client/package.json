@@ -25,6 +25,7 @@
     "solid-icons": "^1.0.4",
     "solid-js": "^1.6.6",
     "solid-styled-components": "^0.28.5",
-    "solid-toast": "^0.4.0"
+    "solid-toast": "^0.4.0",
+    "uuid": "^9.0.0"
   }
 }

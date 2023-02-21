@@ -3,9 +3,13 @@ import { createEffect, createSignal } from "solid-js";
 import { ImSearch } from "solid-icons/im";
 import { Box, Popper, Fade } from "@suid/material";
 import { RiDesignQuillPenFill } from "solid-icons/ri";
+import { v4 as uuidv4 } from "uuid";
 import RightDrawer from "../RightDrawer";
 import { useDrawer } from "../../stores/rightDrawerStore";
 import { useTweet } from "../../stores/tweetStore";
+import { useUser } from "../../stores/userStore";
+import { WriteTweetButton } from "../../components/Styles";
+import ConnectTwitter from "../ConnectTwitter";
 
 const BoxStyle = {
   width: "350px",
@@ -22,6 +26,7 @@ export default function Topbar() {
   const [dropDownOpen, setDropDownOpen] = createSignal(false);
   const [drawer, { openRightDrawer, setRightDrawerType }] = useDrawer();
   const [tweet, { initializeTweet, addTweet }] = useTweet();
+  const [user] = useUser();
 
   const handleShowDropdown = (event) => {
     if (dropDownOpen()) {
@@ -35,7 +40,7 @@ export default function Topbar() {
 
   const handleShowRightDrawer = () => {
     initializeTweet({
-      id: Math.floor(Math.random() * 1000000),
+      _id: uuidv4(),
       publishDate: new Date(),
       thread: [
         {
@@ -62,6 +67,11 @@ export default function Topbar() {
         setAnchorEl(null);
       }
     };
+  });
+
+  createEffect(() => {
+    if (!user) return;
+    console.log("");
   });
 
   return (
@@ -96,10 +106,17 @@ export default function Topbar() {
         </ContainerLeft>
 
         <ContainerRight>
-          <WriteTweetButton onClick={handleShowRightDrawer}>
-            <RiDesignQuillPenFill />
-            <span>Create a Tweet</span>
-          </WriteTweetButton>
+          <Show when={user.twitterId}>
+            <WriteTweetButton onClick={handleShowRightDrawer}>
+              <RiDesignQuillPenFill />
+
+              <span>Create a Tweet</span>
+            </WriteTweetButton>
+          </Show>
+
+          <Show when={!user.twitterId}>
+            <ConnectTwitter />
+          </Show>
         </ContainerRight>
       </Container>
     </>
@@ -216,30 +233,6 @@ const SearchPopper = styled("div")`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-
-  @media screen and (min-width: 768px) {
-    display: flex;
-  }
-`;
-
-const WriteTweetButton = styled("button")`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  border-radius: 2px;
-  border: none;
-  height: 100%;
-  background-color: #1da1f2;
-  color: #fff;
-  padding: 0 10px;
-  margin-left: 10px;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
-    background-color: #1a91da;
-  }
 
   @media screen and (min-width: 768px) {
     display: flex;

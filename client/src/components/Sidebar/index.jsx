@@ -21,6 +21,7 @@ import { FaSolidClipboardCheck } from "solid-icons/fa";
 import { FaSolidRepeat, FaRegularCalendarDays } from "solid-icons/fa";
 import { IoLogOutSharp } from "solid-icons/io";
 import { BiRegularLogOutCircle } from "solid-icons/bi";
+import { useUser } from "../../stores/userStore";
 
 export default function Sidebar() {
   let toggle;
@@ -29,8 +30,15 @@ export default function Sidebar() {
   const [navOpen, setNavOpen] = createSignal(true);
   const [active, setActive] = createSignal("inbox");
 
+  const [user, { logoutUser }] = useUser();
+
   const toggleNav = () => {
     setNavOpen(!navOpen());
+  };
+
+  const handleLogout = () => {
+    logoutUser();
+    navigate("/auth/login");
   };
 
   createEffect(() => {
@@ -47,14 +55,29 @@ export default function Sidebar() {
         <SideNavHeader>
           <Show when={navOpen()}>
             <SideNavHeaderLeft>
-              <UserName>@Keepah504</UserName>
-              <CompanyName>Client Cycle</CompanyName>
+              <UserName>
+                <Show when={user.firstName}>
+                  {user.firstName} {user.lastName}
+                </Show>
+              </UserName>
+
+              <CompanyName>
+                <Show
+                  when={user.twitterUsername}
+                  fallback={<span>Tweet Cycle</span>}
+                >
+                  @{user.twitterUsername}
+                </Show>
+              </CompanyName>
             </SideNavHeaderLeft>
           </Show>
 
           <SideNavHeaderRight>
             <UserAvatar>
-              <span>K</span>
+              <Show when={user.firstName}>
+                {user.firstName[0].toUpperCase()}
+                {user.lastName[0].toUpperCase()}
+              </Show>
             </UserAvatar>
           </SideNavHeaderRight>
         </SideNavHeader>
@@ -115,7 +138,7 @@ export default function Sidebar() {
             </Show>
           </LinkWrapper>
 
-          <LinkWrapper>
+          <LinkWrapper onClick={handleLogout}>
             <LinkIcon>
               <BiRegularLogOutCircle />
             </LinkIcon>

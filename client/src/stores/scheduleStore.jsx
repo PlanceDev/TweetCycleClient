@@ -1,5 +1,8 @@
 import { createContext, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
+import axios from "axios";
+import { toast } from "solid-toast";
+import { SOLID_APP_API_SERVER } from "../config";
 
 export const ScheduleContext = createContext([]);
 
@@ -19,11 +22,6 @@ export function ScheduleProvider(props) {
         setScheduledTweets([...scheduledTweets, tweet]);
       },
 
-      // Remove a tweet from the schedule
-      removeScheduledTweets(id) {
-        setScheduledTweets(scheduledTweets.filter((item) => item.id !== id));
-      },
-
       // Update the scheduled tweet
       editScheduledTweets(id, tweet) {
         setScheduledTweets(
@@ -34,6 +32,23 @@ export function ScheduleProvider(props) {
             return item;
           })
         );
+      },
+
+      // Remove a tweet from the schedule
+      removeScheduledTweets(id) {
+        axios
+          .delete(`${SOLID_APP_API_SERVER}/tweet/${id}`, {
+            withCredentials: true,
+          })
+          .then((res) => {
+            setScheduledTweets(
+              scheduledTweets.filter((item) => item._id !== id)
+            );
+            toast.success("Tweet removed from schedule!");
+          })
+          .catch((err) => {
+            toast.error("Something went wrong. Please try again.");
+          });
       },
     },
   ];

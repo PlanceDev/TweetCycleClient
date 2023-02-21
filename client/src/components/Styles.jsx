@@ -31,3 +31,27 @@ export const ActionPillsDiv = styled("div")`
   flex-direction: row;
   gap: 10px;
 `;
+
+export const WriteTweetButton = styled("button")`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 2px;
+  border: none;
+  height: 100%;
+  background-color: #1da1f2;
+  color: #fff;
+  padding: 0 10px;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #1a91da;
+  }
+
+  @media screen and (min-width: 768px) {
+    display: flex;
+  }
+`;

@@ -11,58 +11,8 @@ import { useSchedule } from "../../../stores/scheduleStore";
 import { useTweet } from "../../../stores/tweetStore";
 import { useDrawer } from "../../../stores/rightDrawerStore";
 import { ActionPill, ActionPillsDiv } from "../../../components/Styles";
-
-const tweets = [
-  {
-    publishDate: new Date("February 10, 2023 12:24:00"),
-    id: 1,
-    thread: [
-      {
-        id: 1,
-        body: "New Year's Day is the first day of the year, or January 1, in the Gregorian calendar.",
-        attachments: [],
-      },
-      {
-        id: 2,
-        body: "New Year's Day is the first day of the year, or January 1, in the Gregorian calendar.",
-        attachments: [],
-      },
-    ],
-  },
-  {
-    publishDate: new Date("February 11, 2023 03:24:00"),
-    id: 2,
-    thread: [
-      {
-        id: 1,
-        body: "New Year'sof the year, or January 1, in the Gregorian calendar.",
-        attachments: [],
-      },
-    ],
-  },
-  {
-    publishDate: new Date("February 11, 2023 05:24:00"),
-    id: 3,
-    thread: [
-      {
-        id: 1,
-        body: "New Year's Day is the first day o.",
-        attachments: [],
-      },
-    ],
-  },
-  {
-    publishDate: new Date("February 18, 2023 03:24:00"),
-    id: 4,
-    thread: [
-      {
-        id: 1,
-        body: "The 18th",
-        attachments: [],
-      },
-    ],
-  },
-];
+import axios from "axios";
+import { SOLID_APP_API_SERVER } from "../../../config";
 
 export default function Schedule() {
   const [rightDrawer, { openRightDrawer, setRightDrawerType }] = useDrawer();
@@ -104,11 +54,27 @@ export default function Schedule() {
   });
 
   onMount(() => {
-    tweets.sort((a, b) => {
-      return a.publishDate - b.publishDate;
-    });
+    axios
+      .get(`${SOLID_APP_API_SERVER}/tweet`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        let tweets = res.data.tweets;
 
-    initializeScheduledTweets(tweets);
+        // get US date format
+        tweets.forEach((tweet) => {
+          tweet.publishDate = new Date(tweet.publishDate);
+        });
+
+        tweets.sort((a, b) => {
+          return a.publishDate - b.publishDate;
+        });
+
+        initializeScheduledTweets(tweets);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   });
 
   return (
@@ -134,18 +100,8 @@ export default function Schedule() {
 
           {scheduledTweets.map((st, i) => (
             <>
-              {/* <div> */}
               <Show when={days()[i] !== days()[i - 1]}>
                 <TweetDay>
-                  {/* <span
-                      style={{
-                        "background-color": "#fff",
-                        "border-radius": "0",
-                        border: "1px solid #ccc",
-                        "border-bottom": "none",
-                        padding: "5px",
-                      }}
-                    > */}
                   <Show
                     when={
                       moment(st.publishDate).format("dddd") ===
@@ -156,7 +112,6 @@ export default function Schedule() {
                     Today
                   </Show>{" "}
                   | {moment(st.publishDate).format("MMMM DD")}
-                  {/* </span> */}
                 </TweetDay>
               </Show>
 
@@ -188,12 +143,11 @@ export default function Schedule() {
                     <FiEdit />
                   </EditIcon>
 
-                  <DeleteIcon onClick={() => handleDelete(st.id)}>
+                  <DeleteIcon onClick={() => handleDelete(st._id)}>
                     <FaRegularTrashCan />
                   </DeleteIcon>
                 </EditDeleteContainer>
               </ScheduledTweet>
-              {/* </div> */}
             </>
           ))}
         </ScheduleBody>
