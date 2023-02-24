@@ -13,6 +13,7 @@ import { useDrawer } from "../../../stores/rightDrawerStore";
 import { ActionPill, ActionPillsDiv } from "../../../components/Styles";
 import axios from "axios";
 import { SOLID_APP_API_SERVER } from "../../../config";
+import ScheduleHistory from "../../../components/ScheduleHistory";
 
 export default function Schedule() {
   const [rightDrawer, { openRightDrawer, setRightDrawerType }] = useDrawer();
@@ -37,65 +38,48 @@ export default function Schedule() {
   createEffect(() => {
     if (scheduledTweets.length === 0) return;
 
-    let weekDays = [];
-    let sortedTweets = [...scheduledTweets];
-
-    sortedTweets.sort((a, b) => {
-      return a.publishDate - b.publishDate;
-    });
+    const sortedTweets = [...scheduledTweets].sort(
+      (a, b) => a.publishDate - b.publishDate
+    );
 
     initializeScheduledTweets(sortedTweets);
 
-    scheduledTweets.forEach((tweet) => {
-      weekDays.push(moment(tweet.publishDate).format("dddd DD MMMM YYYY"));
-    });
+    const weekDays = sortedTweets.map((tweet) =>
+      moment(tweet.publishDate).format("dddd DD MMMM YYYY")
+    );
 
     setDays(weekDays);
   });
 
-  onMount(() => {
-    axios
-      .get(`${SOLID_APP_API_SERVER}/tweet`, {
+  onMount(async () => {
+    try {
+      const res = await axios.get(`${SOLID_APP_API_SERVER}/tweet/scheduled`, {
         withCredentials: true,
-      })
-      .then((res) => {
-        let tweets = res.data.tweets;
-
-        // get US date format
-        tweets.forEach((tweet) => {
-          tweet.publishDate = new Date(tweet.publishDate);
-        });
-
-        tweets.sort((a, b) => {
-          return a.publishDate - b.publishDate;
-        });
-
-        initializeScheduledTweets(tweets);
-      })
-      .catch((err) => {
-        console.log(err);
       });
+
+      let tweets = res.data.tweets;
+
+      // get US date format
+      tweets = tweets.map((tweet) => {
+        return { ...tweet, publishDate: new Date(tweet.publishDate) };
+      });
+
+      tweets.sort((a, b) => a.publishDate - b.publishDate);
+
+      initializeScheduledTweets(tweets);
+    } catch (err) {
+      console.log(err);
+    }
   });
 
   return (
     <>
       <ScheduleContainer>
-        <ScheduleHeader>
-          <span>Scheduled Tweets</span>
-
-          <ActionPillsDiv>
-            <ActionPill>
-              <RiDocumentDraftLine /> Drafts
-            </ActionPill>
-            <ActionPill>
-              <BsCalendar2CheckFill /> Published
-            </ActionPill>
-          </ActionPillsDiv>
-        </ScheduleHeader>
+        <ScheduleHistory selectedPage="Scheduled" />
 
         <ScheduleBody>
           <Show when={scheduledTweets.length === 0}>
-            <p>You haven't scheduled any tweets.</p>
+            <p>You don't have any scheduled tweets.</p>
           </Show>
 
           {scheduledTweets.map((st, i) => (
@@ -133,7 +117,7 @@ export default function Schedule() {
                   <Show when={st.thread.length > 1}>
                     <TweetIsThread>
                       {/* <span>+{st.thread.length - 1} more</span> */}
-                      Thread
+                      {/* Thread */}
                     </TweetIsThread>
                   </Show>
                 </TweetPreview>

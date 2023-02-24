@@ -1,6 +1,7 @@
 import { styled } from "solid-styled-components";
 import { useNavigate, Outlet } from "@solidjs/router";
 import { useUser } from "../../stores/userStore";
+import NavbarBrand from "../../components/NavbarBrand";
 
 export default function AuthRoute() {
   const [user] = useUser();
@@ -10,9 +11,12 @@ export default function AuthRoute() {
     return (
       <>
         <PageContainer>
-          <MobileNav />
+          <MobileNav>
+            <NavbarBrand />
+          </MobileNav>
+
           <PageLeft>
-            <span>Tweet Cycle</span>
+            <NavbarBrand />
           </PageLeft>
 
           <PageRight>
@@ -39,6 +43,8 @@ const PageContainer = styled("div")`
 const PageLeft = styled("div")`
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   flex: 20%;
   background-color: #0f1419;
   color: #fafafa;
@@ -56,6 +62,7 @@ const PageRight = styled("div")`
 
 // Mobile Nav hidden on desktop
 const MobileNav = styled("div")`
+  color: #fafafa;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -80,7 +80,7 @@ export default function Topbar() {
 
       <Container>
         <ContainerLeft>
-          {/* <SearchInputContainer ref={boxRef}>
+          <SearchInputContainer ref={boxRef}>
             <SearchIcon>
               <ImSearch />
             </SearchIcon>
@@ -102,7 +102,7 @@ export default function Topbar() {
                 </Box>
               </Fade>
             </Popper>
-          </SearchInputContainer> */}
+          </SearchInputContainer>
         </ContainerLeft>
 
         <ContainerRight>

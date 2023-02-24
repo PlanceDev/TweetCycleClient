@@ -25,6 +25,7 @@ const tweetSchema = new mongoose.Schema(
       default: Date.now,
       required: true,
     },
+
     thread: [
       {
         id: Number,
@@ -33,7 +34,6 @@ const tweetSchema = new mongoose.Schema(
           {
             key: String,
             name: String,
-            url: String,
           },
         ],
       },
@@ -42,6 +42,9 @@ const tweetSchema = new mongoose.Schema(
       type: String,
       enum: ["published", "draft", "scheduled"],
       default: "draft",
+    },
+    initialTweetId: {
+      type: String,
     },
     createdAt: {
       type: Date,

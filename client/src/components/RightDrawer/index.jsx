@@ -30,6 +30,7 @@ export default function TemporaryDrawer() {
   const [showEmojis, setShowEmojis] = createSignal(false);
   const [selectedThread, setSelectedThread] = createSignal(0);
   const [loading, setLoading] = createSignal(false);
+  const [isScheduling, setIsScheduling] = createSignal(false);
 
   const [rightDrawer, { closeRightDrawer }] = useDrawer();
   const [scheduledTweets, { addScheduledTweets, editScheduledTweets }] =
@@ -42,8 +43,8 @@ export default function TemporaryDrawer() {
 
   // Open the drawer when the user clicks on the emoji button
   const handleToggleEmojis = (id) => {
-    setShowEmojis(!showEmojis());
     setSelectedThread(id);
+    setShowEmojis(!showEmojis());
   };
 
   // Select an emoji and add it to the tweet body
@@ -70,10 +71,6 @@ export default function TemporaryDrawer() {
     fileInput.click();
 
     const checkAndUpload = (e, id) => {
-      // get filename
-      // const filename = e.target.files[0].name;
-      // console.log(filename);
-
       if (fileInput.size > 5242880) {
         toast.error("File size is too large. File must be less than 5MB.");
         return;
@@ -96,6 +93,7 @@ export default function TemporaryDrawer() {
       return toast.error("Please connect your Twitter account.");
 
     setLoading(true);
+    setIsScheduling(true);
 
     axios
       .post(
@@ -111,13 +109,16 @@ export default function TemporaryDrawer() {
       .catch((err) => {
         toast.error("Something went wrong. Please try again.");
       })
-      .finally(() => setLoading(false));
+      .finally(() => setLoading(false))
+      .finally(() => setIsScheduling(false));
   };
 
   // Handle the tweet now button TODO - make this one function
   const handleTweetNow = () => {
     if (!user.twitterId)
       return toast.error("Please connect your Twitter account.");
+
+    setLoading(true);
 
     axios
       .post(
@@ -132,7 +133,8 @@ export default function TemporaryDrawer() {
       .catch((err) => {
         console.log(err);
         toast.error("Something went wrong. Please try again.");
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   // Handle the edit scheduled tweet button
@@ -170,7 +172,11 @@ export default function TemporaryDrawer() {
                 <CircularProgress />
 
                 <span>
-                  <strong>Saving...</strong>
+                  <strong>
+                    <Show when={isScheduling()} fallback="Tweeting...">
+                      Scheduling...
+                    </Show>
+                  </strong>
                 </span>
               </div>
             </>
@@ -186,6 +192,13 @@ export default function TemporaryDrawer() {
                         value={item.body}
                         onChange={HandleTextInput}
                         onFocus={() => setSelectedThread(item.id)}
+                        // blur on mouse leave
+                        // onMouseLeave={() => {
+                        //   document.activeElement.blur();
+                        // }}
+                        onMouseClickOutside={() => {
+                          document.activeElement.blur();
+                        }}
                       />
 
                       <Show when={item.attachments.length > 0}>
@@ -220,6 +233,7 @@ export default function TemporaryDrawer() {
                           <BiRegularImageAdd
                             onClick={(e) => handleImageUploadClick(e, item.id)}
                           />
+
                           <OcSmiley2
                             onClick={() => handleToggleEmojis(item.id)}
                           />
@@ -393,6 +407,10 @@ const TweetActionsDiv = styled("div")`
     font-size: 1rem;
     color: #fff !important;
     cursor: pointer;
+
+    &:hover {
+      background-color: #1da1f2;
+    }
   }
 `;
 

@@ -9,6 +9,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 const rateLimit = require("express-rate-limit");
 const app = express();
 const routes = require("./routes");
+const { SendTweets } = require("./utils/automateTweets");
 
 const rateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -37,6 +38,9 @@ if (process.env.NODE_ENV === "production") {
     res.sendFile(path.resolve(__dirname, "../client", "build", "index.html"));
   });
 }
+
+// Run task every minute
+SendTweets.start();
 
 const port = process.env.PORT || 5000;
 

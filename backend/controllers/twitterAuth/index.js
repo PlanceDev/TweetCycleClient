@@ -28,14 +28,11 @@ const oa = new Auth(
 // @access  Public
 exports.twitterUrl = async (req, res) => {
   try {
-    console.log("twitterUrl");
     oa.getOAuthRequestToken((e, requestToken) => {
       if (e) return res.status(400).send({ error: e.message });
 
       const authUrl =
         authorizeUrl + "?" + qs.stringify({ oauth_token: requestToken });
-
-      console.log(authUrl);
 
       return res.send(authUrl);
     });

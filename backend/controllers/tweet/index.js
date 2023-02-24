@@ -9,6 +9,21 @@ const s3 = new AWS.S3({
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 
+const { tweetNow } = require("../../utils/tweetNow");
+
+// Uploads an attachment or list of attachments to S3
+const uploadToS3 = async (attachment) => {
+  const params = {
+    Bucket: process.env.S3_BUCKET_NAME,
+    Key: attachment.key,
+    Body: attachment.buffer,
+    ACL: "public-read",
+    ContentType: `image/${attachment.ext}`,
+  };
+
+  await s3.upload(params).promise();
+};
+
 // @route   POST /api/tweet
 // @desc    Creates a new tweet
 // @access  Private
@@ -23,11 +38,11 @@ exports.createTweet = async (req, res) => {
     // Validate the request body
     let isValidDate = true;
 
-    let publishDate =
+    const publishDate =
       req.body.type === "schedule-tweet" ? req.body.publishDate : Date.now();
 
     if (req.body.type === "schedule-tweet" && publishDate) {
-      isValidDate = new Date(publishDate) > Date.now() + 1000 * 60 * 5;
+      isValidDate = new Date(publishDate) > Date.now() - 1000 * 60 * 5;
     }
 
     const isValidThread = req.body.thread.every(
@@ -48,95 +63,90 @@ exports.createTweet = async (req, res) => {
       creator: req.user._id,
       publishDate: publishDate,
       thread: [],
-      status: req.body.type === "draft" ? "draft" : "scheduled",
+      status: req.body.type !== "schedule-tweet" ? "draft" : "scheduled",
     });
 
+    const attachments = [];
+
+    // Iterate over the threads using async iteration
     for await (const thread of req.body.thread) {
-      let newThread = {
+      const newThread = {
         id: thread.id,
         body: thread.body,
         attachments: [],
       };
 
-      let uploadPromises = [];
+      // Iterate over the attachments using async iteration
+      await Promise.all(
+        thread.attachments.map(async (attachment) => {
+          if (!attachment.b64) return;
 
-      for await (const attachment of thread.attachments) {
-        if (!attachment.b64) return;
+          // check if file type is allowed
+          const ext = attachment.name.split(".").pop();
 
-        // check if file type is allowed
-        const ext = attachment.name.split(".").pop();
+          const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
 
-        const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
+          if (!allowedExtensions.includes(ext)) {
+            return res.status(400).send({ error: "Invalid file type" });
+          }
 
-        if (!allowedExtensions.includes(ext)) {
-          return res.status(400).send({ error: "Invalid file type" });
-        }
+          // Set file name and path
+          const fileName = `${uuid.v4()}.${ext}`;
+          const imageBuffer = Buffer.from(attachment.b64, "base64");
+          const filePath = path.join(__dirname, "uploads", fileName);
 
-        // Set file name and path
-        const fileName = `${uuid.v4()}.${ext}`;
-        const imageBuffer = Buffer.from(attachment.b64, "base64");
-        const filePath = path.join(__dirname, "uploads", fileName);
+          // Add attachment to list for parallel upload
+          attachments.push({
+            filePath,
+            key: fileName,
+            name: attachment.name.replace(/\s/g, "_").toLowerCase(),
+            ext,
+            buffer: imageBuffer,
+          });
 
-        // Write file to disk and upload to S3
-        uploadPromises.push(
-          new Promise((resolve, reject) => {
-            fs.writeFile(filePath, imageBuffer, (err) => {
-              if (err) {
-                console.log(err);
-                reject(err);
-              } else {
-                // upload file to s3
-                const params = {
-                  Bucket: process.env.S3_BUCKET_NAME,
-                  Key: fileName,
-                  Body: fs.createReadStream(filePath),
-                  ACL: "public-read",
-                };
-
-                s3.upload(params, (err, data) => {
-                  if (err) {
-                    reject(err);
-                  } else {
-                    newThread.attachments.push({
-                      key: fileName,
-                      name: attachment.name.replace(/\s/g, "_").toLowerCase(),
-                      url: data.Location,
-                    });
-                    console.log(
-                      `File uploaded successfully. File URL: ${data.Location}`
-                    );
-                    fs.unlinkSync(filePath);
-                    resolve();
-                  }
-                });
-              }
-            });
-          })
-        );
-      }
-
-      // Wait for all file uploads to complete
-      await Promise.all(uploadPromises);
+          // Add attachment to list for parallel upload
+          newThread.attachments.push({
+            key: fileName,
+            name: attachment.name.replace(/\s/g, "_").toLowerCase(),
+            url: null,
+          });
+        })
+      );
 
       tweet.thread.push(newThread);
     }
 
+    // Upload all attachments to S3 in parallel
+    await Promise.all(
+      attachments.map(async (attachment) => {
+        await uploadToS3(attachment);
+        // fs.unlink(attachment.filePath);
+      })
+    );
+
     // Save the new tweet to the database
     await tweet.save();
+
+    if (req.body.type === "tweet-now") {
+      await tweetNow(tweet, req.user._id);
+    }
 
     return res.send({ tweet }).status(201);
   } catch (e) {
     console.log(e);
-    return res.status(e.status || 500).send({ error: e.message });
+    return res.status(500).send({ error: "Something went wrong" });
   }
 };
 
-// @route   GET /api/tweet
+// @route   GET /api/tweet/:status
 // @desc    Gets all tweets
 // @access  Private
 exports.getTweets = async (req, res) => {
   try {
-    const tweets = await Tweet.find({ creator: req.user._id });
+    const tweets = await Tweet.find({
+      creator: req.user._id,
+      status: req.params.status,
+    });
 
     return res.send({ tweets });
   } catch (e) {

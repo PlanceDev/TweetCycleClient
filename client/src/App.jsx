@@ -5,6 +5,7 @@ import { Toaster } from "solid-toast";
 
 // Informational pages
 import PublicRoute from "./layouts/PublicRoute";
+import Home from "./pages/Public/Home";
 
 // Authentication pages
 import AuthRoute from "./layouts/AuthRoute";
@@ -20,6 +21,8 @@ const ResendVerificationEmail = lazy(() =>
 // Pages only visible to authenticated users
 import ProtectedRoute from "./layouts/ProtectedRoute";
 import Schedule from "./pages/Protected/Schedule";
+import Published from "./pages/Protected/Published";
+import Drafts from "./pages/Protected/Drafts";
 import TweetGenerator from "./pages/Protected/TweetGenerator";
 import TwitterRedirect from "./pages/Protected/TwitterRedirect";
 
@@ -27,7 +30,9 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<PublicRoute />}></Route>
+        <Route path="/" element={<PublicRoute />}>
+          <Route path="/" element={<Home />} />
+        </Route>
 
         <Route path="/auth" element={<AuthRoute />}>
           <Route path="/login" element={<Login />} />
@@ -40,6 +45,8 @@ function App() {
 
         <Route path="/a" element={<ProtectedRoute />}>
           <Route path="/schedule" element={<Schedule />} />
+          <Route path="/drafts" element={<Drafts />} />
+          <Route path="/published" element={<Published />} />
           <Route path="/tweet-generator" element={<TweetGenerator />} />
           <Route path="/twitter-redirect" element={<TwitterRedirect />} />
         </Route>

@@ -10,7 +10,7 @@ router.post("/", tweetController.createTweet);
 // @route   GET /api/tweet
 // @desc    Gets all tweets
 // @access  Private
-router.get("/", tweetController.getTweets);
+router.get("/:status", tweetController.getTweets);
 
 // @route   GET /api/tweet/:id
 // @desc    Gets a tweet by id
