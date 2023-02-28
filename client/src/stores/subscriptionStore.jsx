@@ -8,9 +8,9 @@ export function SubscriptionProvider(props) {
     _id: localStorage.getItem("sub_id") || "",
     owner: localStorage.getItem("sub_owner") || "",
     plan: localStorage.getItem("sub_plan") || "",
-    payPeriod: localStorage.getItem("sub_payPeriod") || "",
+    frequency: localStorage.getItem("sub_frequency") || "",
     status: localStorage.getItem("sub_status") || "",
-    renewalDate: localStorage.getItem("sub_renewalDate") || "",
+    currentPeriodEnd: localStorage.getItem("sub_currentPeriodEnd") || "",
   });
 
   const subscriptionActions = [
@@ -21,11 +21,32 @@ export function SubscriptionProvider(props) {
         localStorage.setItem("sub_id", subscription._id);
         localStorage.setItem("sub_owner", subscription.owner);
         localStorage.setItem("sub_plan", subscription.plan);
-        localStorage.setItem("sub_payPeriod", subscription.payPeriod);
+        localStorage.setItem("sub_frequency", subscription.frequency);
         localStorage.setItem("sub_status", subscription.status);
-        localStorage.setItem("sub_renewalDate", subscription.renewalDate);
+        localStorage.setItem(
+          "sub_currentPeriodEnd",
+          subscription.currentPeriodEnd
+        );
 
         setSubscription(subscription);
+      },
+
+      clearSubscription() {
+        localStorage.removeItem("sub_id");
+        localStorage.removeItem("sub_owner");
+        localStorage.removeItem("sub_plan");
+        localStorage.removeItem("sub_frequency");
+        localStorage.removeItem("sub_status");
+        localStorage.removeItem("sub_currentPeriodEnd");
+
+        setSubscription({
+          _id: "",
+          owner: "",
+          plan: "",
+          frequency: "",
+          status: "",
+          currentPeriodEnd: "",
+        });
       },
     },
   ];

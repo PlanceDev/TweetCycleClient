@@ -6,6 +6,7 @@ import { FiEdit } from "solid-icons/fi";
 import { FaRegularTrashCan } from "solid-icons/fa";
 import { AiFillClockCircle } from "solid-icons/ai";
 import { FaRegularEye } from "solid-icons/fa";
+import { toast } from "solid-toast";
 import { useUser } from "../../../stores/userStore";
 import { useSchedule } from "../../../stores/scheduleStore";
 import { useTweet } from "../../../stores/tweetStore";
@@ -70,6 +71,12 @@ export default function Published() {
       const res = await axios.get(`${SOLID_APP_API_SERVER}/tweet/published`, {
         withCredentials: true,
       });
+
+      if (res.status !== 200) {
+        return toast.error(
+          "Could not retrieve published tweets. Please try again later."
+        );
+      }
 
       let publishedTweets = res.data.tweets;
 

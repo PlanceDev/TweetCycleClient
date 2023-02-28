@@ -5,6 +5,7 @@ import { FiEdit } from "solid-icons/fi";
 import { FaRegularTrashCan } from "solid-icons/fa";
 import { AiFillClockCircle } from "solid-icons/ai";
 import { AiFillEye } from "solid-icons/ai";
+import { toast } from "solid-toast";
 import { useSchedule } from "../../../stores/scheduleStore";
 import { useTweet } from "../../../stores/tweetStore";
 import { useDrawer } from "../../../stores/rightDrawerStore";
@@ -73,6 +74,12 @@ export default function Drafts() {
         withCredentials: true,
       })
       .then((res) => {
+        if (res.status !== 200) {
+          return toast.error(
+            "Could not retrieve drats. Please try again later."
+          );
+        }
+
         let tweets = res.data.tweets;
 
         // get US date format

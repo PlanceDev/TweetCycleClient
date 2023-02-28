@@ -19,7 +19,7 @@ module.exports = (req, res, next) => {
 
     // Check if a token was provided
     if (!token) {
-      return res.status(403).send({
+      return res.status(440).send({
         error: "Unauthorized",
         message: "No token provided",
       });
@@ -28,7 +28,7 @@ module.exports = (req, res, next) => {
     // Verify the token
     jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
       if (error) {
-        return res.status(403).send({
+        return res.status(440).send({
           error: "Unauthorized",
           message: "Invalid token",
         });

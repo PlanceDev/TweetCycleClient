@@ -2,52 +2,34 @@ import { styled } from "solid-styled-components";
 import { createEffect, createSignal, Show, onMount } from "solid-js";
 import { promptStyles } from "./promptStyles";
 import { ActionPill } from "../../../components/Styles";
-import { AiOutlineSend } from "solid-icons/ai";
+import { AiOutlineSend, AiOutlineUser } from "solid-icons/ai";
 import { useTweet } from "../../../stores/tweetStore";
 import { useDrawer } from "../../../stores/rightDrawerStore";
+import { useUser } from "../../../stores/userStore";
 import { Box, LinearProgress } from "@suid/material";
 import { Skeleton, Stack } from "@suid/material";
+import axios from "axios";
+import { SOLID_APP_API_SERVER } from "../../../config";
+import { toast } from "solid-toast";
 
 export default function TweetGenerator() {
   const [tweet, { initializeTweet }] = useTweet();
   const [rightDrawer, { openRightDrawer }] = useDrawer();
+  const [user] = useUser();
   const [selectedStyles, setSelectedStyles] = createSignal([]);
   const [generatingTweets, setGeneratingTweets] = createSignal(false);
-  const [generatedTweets, setGeneratedTweets] = createSignal([
-    {
-      id: 1,
-      body: "New Year's Day is the first day of the year, or January 1, in the Gregorian calendar.",
-      attachments: [],
-    },
-    {
-      id: 2,
-      body: "New Year's Day is the first day of the year, or January 1, in the Gregorian calendar.",
-      attachments: [],
-    },
-    {
-      id: 3,
-      body: "New Year's Day is the first day of the year, or January 1, in the Gregorian calendar.",
-      attachments: [],
-    },
-    {
-      id: 4,
-      body: "New Year's Day is the first day of the year, or January 1, in the Gregorian calendar.",
-      attachments: [],
-    },
-    {
-      id: 5,
-      body: "New Year's Day is the first day of the year, or January 1, in the Gregorian calendar.",
-      attachments: [],
-    },
-    {
-      id: 6,
-      body: "New Year's Day is the first day of the year, or January 1, in the Gregorian calendar.",
-      attachments: [],
-    },
-  ]);
+  const [prompt, setPrompt] = createSignal("");
+  const [generatedTweets, setGeneratedTweets] = createSignal([]);
 
+  // Add or remove styles from the selectedStyles array
   const handleStyleChange = (event) => {
     const { name, checked } = event.target;
+
+    if (selectedStyles().length >= 3 && checked) {
+      toast.error("You may only select up to 3 styles.");
+      return (event.target.checked = false);
+    }
+
     if (checked) {
       setSelectedStyles([...selectedStyles(), name]);
     } else {
@@ -55,16 +37,48 @@ export default function TweetGenerator() {
     }
   };
 
+  // Generate tweets
   const handleGenerateTweets = (e) => {
     e.preventDefault();
-    console.log("Generating tweets...");
+
+    if (selectedStyles().length === 0) {
+      toast.error("You must select at least 1 style.");
+      return;
+    }
+
+    if (prompt().length === 0 || prompt() === " " || prompt().length < 4) {
+      toast.error("You must enter a prompt with at least 4 characters.");
+      return;
+    }
+
     setGeneratingTweets(true);
 
-    setTimeout(() => {
-      setGeneratingTweets(false);
-    }, 2000);
+    axios
+      .post(
+        `${SOLID_APP_API_SERVER}/tweet-generator`,
+        {
+          prompt: prompt().trim(),
+          selectedStyle: selectedStyles(),
+        },
+        { withCredentials: true }
+      )
+      .then((res) => {
+        if (res.status !== 200) {
+          return toast.error("Error generating tweets");
+        }
+
+        console.log(res.data);
+        setGeneratedTweets(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setGeneratingTweets(false);
+      });
   };
 
+  // Open the right drawer and initialize the tweet with the generated tweet
   const handleEditTweet = (body) => {
     initializeTweet({
       id: Math.floor(Math.random() * 1000000),
@@ -84,16 +98,14 @@ export default function TweetGenerator() {
     <GeneratorContainer>
       <GeneratorHeader>
         <span>Tweet Generator</span>
-        <ActionPill>
-          <span>Edit</span>
-        </ActionPill>
       </GeneratorHeader>
 
       <GeneratorBody>
         <PromptSection onSubmit={(e) => handleGenerateTweets(e)}>
           <PromptInputContainer>
             <PromptInput
-              placeholder={"Please enter a short topic to generate a tweet."}
+              placeholder={"Enter a topic you would like to tweet about..."}
+              onChange={(e) => setPrompt(e.target.value)}
             />
 
             <PromptButton>
@@ -144,6 +156,18 @@ export default function TweetGenerator() {
           </LoadingWrapper>
         </Show>
 
+        <Show when={!generatingTweets() && generatedTweets().length === 0}>
+          <NoTweetsWrapper>
+            <NoTweetsContainer>
+              <NoTweetsTitle>
+                Please enter a prompt about a topic you would like to generate
+                tweets for. You can select up to 3 conversation styles in which
+                the AI will tone the tweets.
+              </NoTweetsTitle>
+            </NoTweetsContainer>
+          </NoTweetsWrapper>
+        </Show>
+
         <Show when={!generatingTweets() && generatedTweets()}>
           <GeneratedTweetsWrapper>
             <GeneratedTweetsContainer>
@@ -153,8 +177,19 @@ export default function TweetGenerator() {
                     <GeneratedTweet>
                       <TweetHeader>
                         <TweetHeaderInfo>
-                          <UserAvatar>K</UserAvatar>
-                          <span>@Keepah504</span>
+                          <UserAvatar>
+                            {user.profilePicture ? (
+                              <img
+                                src={user.profilePicture}
+                                alt="Profile Picture"
+                              />
+                            ) : (
+                              <AiOutlineUser />
+                            )}
+                          </UserAvatar>
+                          <Show when={user.twitterUsername}>
+                            <span>@{user.twitterUsername}</span>
+                          </Show>
                         </TweetHeaderInfo>
                       </TweetHeader>
 
@@ -180,6 +215,31 @@ export default function TweetGenerator() {
     </GeneratorContainer>
   );
 }
+
+const NoTweetsWrapper = styled("div")`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+`;
+
+const NoTweetsContainer = styled("div")`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 75%;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+`;
+
+const NoTweetsTitle = styled("span")`
+  font-size: 1rem;
+  color: #000000;
+`;
 
 const GeneratorContainer = styled("div")`
   display: flex;
@@ -357,6 +417,7 @@ const GeneratedTweetsContainer = styled("div")`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+  margin-bottom: 50px;
 
   @media (max-width: 868px) {
     display: flex;
@@ -377,7 +438,6 @@ const GeneratedTweet = styled("div")`
   font-size: 0.8rem !important;
   border: 1px solid #e3e3e3;
   width: 250px;
-  height: 250px;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
 
   @media (max-width: 868px) {

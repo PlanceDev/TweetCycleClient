@@ -1,5 +1,6 @@
 require("dotenv").config();
 require("./db/mongoose");
+const http = require("http");
 const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -9,7 +10,13 @@ const mongoSanitize = require("express-mongo-sanitize");
 const rateLimit = require("express-rate-limit");
 const app = express();
 const routes = require("./routes");
+
 const { SendTweets } = require("./utils/automateTweets");
+const { handleCompletedPayment } = require("./utils/stripeHooks");
+
+const setupWebSocketServer = require("./utils/websocket");
+const server = http.createServer(app);
+const wss = setupWebSocketServer(server);
 
 const rateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -22,6 +29,13 @@ app.use(
     credentials: true,
   })
 );
+
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  handleCompletedPayment
+);
+
 app.use(bodyParser.urlencoded({ extended: true })); // Required for mongoSanitize to work
 app.use(bodyParser.json({ limit: "50mb" })); // Required for mongoSanitize to work
 app.use(mongoSanitize({})); // Data sanitization against NoSQL query injection
@@ -44,6 +58,11 @@ SendTweets.start();
 
 const port = process.env.PORT || 5000;
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+});
+
+// prevent uncaughtException from crashing the app
+process.on("uncaughtException", (err) => {
+  console.log("uncaughtException", err);
 });

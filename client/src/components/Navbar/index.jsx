@@ -3,10 +3,12 @@ import { createEffect, createSignal, Show, onMount } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { AiOutlineMenu } from "solid-icons/ai";
 import NavbarBrand from "../NavbarBrand";
+import { useUser } from "../../stores/userStore";
 
 export default function Navbar() {
   const [isMobile, setIsMobile] = createSignal(false);
   const [links, setLinks] = createSignal({});
+  const [user, setUser] = useUser();
 
   const navigate = useNavigate();
 
@@ -20,7 +22,6 @@ export default function Navbar() {
         nav.style.position = "fixed";
         nav.style.opacity = "0.9";
       } else {
-        nav.style.position = "fixed";
         nav.style.opacity = "1";
       }
     };
@@ -33,6 +34,10 @@ export default function Navbar() {
   });
 
   const handleLinkClick = (e) => {
+    if (window.location.pathname !== "/") {
+      return navigate(`/`);
+    }
+
     links()[e.target.innerText.toLowerCase()].scrollIntoView({
       behavior: "smooth",
       block: "start",
@@ -91,19 +96,27 @@ export default function Navbar() {
               <span>Pricing</span>
             </NavItem>
 
-            <NavItem onClick={handleLinkClick}>
+            {/* <NavItem onClick={handleLinkClick}>
               <span>Blog</span>
-            </NavItem>
+            </NavItem> */}
           </NavCenter>
 
           <NavRight>
-            <LoginText onClick={() => navigate("/auth/login")}>
-              Log In
-            </LoginText>
+            <Show when={!user.isAuth}>
+              <LoginText onClick={() => navigate("/auth/login")}>
+                Log In
+              </LoginText>
 
-            <SignupButton onClick={() => navigate("/auth/register")}>
-              Get Started
-            </SignupButton>
+              <SignupButton onClick={() => navigate("/auth/register")}>
+                Get Started
+              </SignupButton>
+            </Show>
+
+            <Show when={user.isAuth}>
+              <SignupButton onClick={() => navigate("/a/schedule")}>
+                Dashboard
+              </SignupButton>
+            </Show>
           </NavRight>
         </Show>
       </NavInner>

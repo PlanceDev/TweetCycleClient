@@ -46,10 +46,11 @@ exports.login = async (req, res) => {
         twitterId: user.twitterId || null,
         twitterUsername: user.twitterUsername || null,
         plan: subscription.plan,
+        status: subscription.status,
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: "7d",
+        expiresIn: process.env.JWT_EXPIRES_IN,
       }
     );
 

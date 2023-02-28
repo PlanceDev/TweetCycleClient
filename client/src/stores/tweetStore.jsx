@@ -1,5 +1,6 @@
 import { createContext, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
+import { toast } from "solid-toast";
 
 export const TweetContext = createContext([{}, {}]);
 
@@ -36,41 +37,37 @@ export function TweetProvider(props) {
       },
 
       // Upload an image to the tweet
-      async handleImageUpload(e, id) {
-        const file = e.target.files[0];
-        const fileData = await readImageFile(file);
-        const base64Image = fileData.split(",")[1];
-
+      async handleImageUpload(name, b64, id) {
         setTweet({
           ...tweet,
           thread: tweet.thread.map((item) => {
             if (item.id === id) {
               return {
                 ...item,
-                attachments: [
-                  ...item.attachments,
-                  { name: file.name, b64: base64Image },
-                ],
+                attachments: [...item.attachments, { name, b64 }],
               };
             }
             return item;
           }),
         });
+      },
 
-        function readImageFile(file) {
-          return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
+      // Remove an image from the tweet
+      removeImage(id, index, key) {
+        setTweet({
+          ...tweet,
+          thread: tweet.thread.map((t) => {
+            if (t.id === id) {
+              console.log(t);
 
-            reader.onload = () => {
-              resolve(reader.result);
-            };
-
-            reader.onerror = (error) => {
-              reject(error);
-            };
-          });
-        }
+              return {
+                ...t,
+                attachments: t.attachments.filter((item) => item.key !== key),
+              };
+            }
+            return t;
+          }),
+        });
       },
 
       // Add a new tweet to the thread

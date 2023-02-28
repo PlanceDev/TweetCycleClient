@@ -1,5 +1,6 @@
 import { styled } from "solid-styled-components";
 import { createEffect, createSignal } from "solid-js";
+import { useNavigate } from "@solidjs/router";
 import { ImSearch } from "solid-icons/im";
 import { Box, Popper, Fade } from "@suid/material";
 import { RiDesignQuillPenFill } from "solid-icons/ri";
@@ -10,6 +11,8 @@ import { useTweet } from "../../stores/tweetStore";
 import { useUser } from "../../stores/userStore";
 import { WriteTweetButton } from "../../components/Styles";
 import ConnectTwitter from "../ConnectTwitter";
+import axios from "axios";
+import { SOLID_APP_API_SERVER } from "../../config";
 
 const BoxStyle = {
   width: "350px",
@@ -21,12 +24,14 @@ const BoxStyle = {
 };
 
 export default function Topbar() {
+  const navigate = useNavigate();
+  const [user, { logoutUser }] = useUser();
+
   let boxRef;
   const [anchorEl, setAnchorEl] = createSignal(null);
   const [dropDownOpen, setDropDownOpen] = createSignal(false);
   const [drawer, { openRightDrawer, setRightDrawerType }] = useDrawer();
   const [tweet, { initializeTweet, addTweet }] = useTweet();
-  const [user] = useUser();
 
   const handleShowDropdown = (event) => {
     if (dropDownOpen()) {
@@ -71,7 +76,6 @@ export default function Topbar() {
 
   createEffect(() => {
     if (!user) return;
-    console.log("");
   });
 
   return (

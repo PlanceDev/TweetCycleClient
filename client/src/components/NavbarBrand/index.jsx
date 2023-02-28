@@ -14,7 +14,7 @@ export default function NavbarBrand() {
           "font-size": "0.8rem",
         }}
       >
-        ALPHA
+        {/* ALPHA */}
       </span>
     </NavBrand>
   );

@@ -72,20 +72,24 @@ export default function Register() {
       axios
         .post(`${SOLID_APP_API_SERVER}/auth/register`, formData())
         .then((res) => {
-          console.log(res);
+          if (res.status === 409) {
+            return toast.error("A user with that email already exists!");
+          }
+
+          if (res.status === 422) {
+            return toast.error("All fields are required!");
+          }
+
+          if (res.status !== 200 && res.status !== 201) {
+            return toast.error("Something went wrong! Please try again later.");
+          }
+
           toast.success("Registration successful!");
           setVerificationSent(true);
           navigate("/auth/resend-email");
         })
         .catch((err) => {
-          if (err.response.status === 409) {
-            return toast.error("A user with that email already exists!");
-          }
-
-          if (err.response.status === 422) {
-            return toast.error("All fields are required!");
-          }
-
+          console.log(err);
           return toast.error("Something went wrong! Please try again later.");
         })
         .finally(() => setLoading(false));

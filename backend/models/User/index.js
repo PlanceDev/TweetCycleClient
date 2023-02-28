@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const uuid = require("uuid");
 const bcrypt = require("bcrypt");
 const validator = require("mongoose-validator");
+const stripe = require("stripe")(process.env.STRIPE_LIVE_KEY);
 
 const nameValidator = [
   validator({
@@ -108,6 +109,26 @@ const userSchema = new mongoose.Schema(
       type: String,
       ref: "Subscription",
     },
+    stripeCustomerId: {
+      type: String,
+      trim: true,
+    },
+    stripeSubscriptionId: {
+      type: String,
+      trim: true,
+    },
+    stripePaymentMethodId: {
+      type: String,
+      trim: true,
+    },
+    stripeCardBrand: {
+      type: String,
+      trim: true,
+    },
+    stripePaymentLast4: {
+      type: String,
+      trim: true,
+    },
     createdAt: {
       type: Date,
       default: Date.now,
@@ -131,7 +152,6 @@ userSchema.methods.toJSON = function () {
   return userObject;
 };
 
-// check if user is already in the database
 userSchema.statics.register = async function (profile) {
   const { email, pw, firstName, lastName } = profile;
 
@@ -142,6 +162,7 @@ userSchema.statics.register = async function (profile) {
     throw err;
   }
 
+  // check if user is already in the database
   const userExist = await this.findOne({ email: profile.email });
 
   if (userExist) {
@@ -151,11 +172,17 @@ userSchema.statics.register = async function (profile) {
     throw err;
   }
 
+  // create stripe customer
+  const customer = await stripe.customers.create({
+    description: "Customer for " + email,
+  });
+
   return this.create({
     firstName: profile.firstName,
     lastName: profile.lastName,
     email: profile.email,
     password: profile.pw,
+    stripeCustomerId: customer.id,
   });
 };
 
@@ -187,8 +214,8 @@ userSchema.statics.login = async function (email, password) {
   }
 
   // remove access tokens from the response
-  user.accessToken = undefined;
-  user.accessSecret = undefined;
+  user.twitterAccessToken = undefined;
+  user.twitterAccessTokenSecret = undefined;
   user.__v = undefined;
 
   return user;

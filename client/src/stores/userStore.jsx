@@ -12,6 +12,13 @@ export function UserProvider(props) {
     createdAt: localStorage.getItem("createdAt") || "",
     twitterId: localStorage.getItem("twitterId") || "",
     twitterUsername: localStorage.getItem("twitterUsername") || "",
+
+    stripeCustomerId: localStorage.getItem("stripeCustomerId") || "",
+    stripePaymentMethodId: localStorage.getItem("stripePaymentMethodId") || "",
+    stripeSubscriptionId: localStorage.getItem("stripeSubscriptionId") || "",
+    stripeCardBrand: localStorage.getItem("stripeCardBrand") || "",
+    stripePaymentLast4: localStorage.getItem("stripePaymentLast4") || "",
+
     isEmailVerified: localStorage.getItem("isEmailVerified") || false,
     isAuth: localStorage.getItem("isAuth") || false,
   });
@@ -28,8 +35,26 @@ export function UserProvider(props) {
         localStorage.setItem("createdAt", user.createdAt);
         localStorage.setItem("twitterId", user.twitterId || "");
         localStorage.setItem("twitterUsername", user.twitterUsername || "");
+        localStorage.setItem("stripeCustomerId", user.stripeCustomerId || "");
         localStorage.setItem("isEmailVerified", user.isEmailVerified);
         localStorage.setItem("isAuth", true);
+
+        localStorage.setItem(
+          "stripePaymentMethodId",
+          user.stripePaymentMethodId || ""
+        );
+
+        localStorage.setItem(
+          "stripeSubscriptionId",
+          user.stripeSubscriptionId || ""
+        );
+
+        localStorage.setItem("stripeCardBrand", user.stripeCardBrand || "");
+
+        localStorage.setItem(
+          "stripePaymentLast4",
+          user.stripePaymentLast4 || ""
+        );
 
         setUser(user);
       },
@@ -51,6 +76,11 @@ export function UserProvider(props) {
           createdAt: "",
           twitterId: "",
           twitterUsername: "",
+          stripeCustomerId: "",
+          stripePaymentMethodId: "",
+          stripeSubscriptionId: "",
+          stripeCardBrand: "",
+          stripePaymentLast4: "",
           isEmailVerified: false,
           isAuth: false,
         });

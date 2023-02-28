@@ -59,25 +59,37 @@ export default function Login() {
           withCredentials: true,
         })
         .then((res) => {
+          console.log(res);
+          if (res.status === 401) {
+            navigate("/auth/resend-email");
+            return toast.error("You must verify your email first!");
+          }
+
+          if (res.status === 422) {
+            return toast.error("All fields are required!");
+          }
+
+          if (res.status !== 200) {
+            return toast.error("Invalid credentials!");
+          }
+
           initializeUser(res.data.user);
           initializeSubscription(res.data.subscription);
           navigate("/a/schedule");
         })
         .catch((err) => {
-          if (err.response.status === 401) {
-            navigate("/auth/resend-email");
-            return toast.error("You must verify your email first!");
-          }
-
-          if (err.response.status === 422) {
-            return toast.error("All fields are required!");
-          }
-
-          return toast.error("Invalid credentials!");
+          console.log(err);
         })
         .finally(() => setLoading(false));
     }, 500);
   };
+
+  onMount(() => {
+    // check if session params equal "expired"
+    if (window.location.search.includes("expired=true")) {
+      toast.error("Session has expired. Please login again.");
+    }
+  });
 
   return (
     <>

@@ -4,6 +4,7 @@ import axios from "axios";
 import { SOLID_APP_API_SERVER } from "../../config";
 import { RiDesignQuillPenFill } from "solid-icons/ri";
 import { WriteTweetButton } from "../../components/Styles";
+import { toast } from "solid-toast";
 
 export default function ConnectTwitter() {
   const [twitterUrl, setTwitterUrl] = createSignal("");
@@ -18,6 +19,9 @@ export default function ConnectTwitter() {
         withCredentials: true,
       })
       .then((res) => {
+        if (res.status !== 200) {
+          return toast.error("Something went wrong! Please try again later.");
+        }
         setTwitterUrl(res.data);
       })
       .catch((err) => {
@@ -29,7 +33,7 @@ export default function ConnectTwitter() {
     <>
       <WriteTweetButton onClick={handleTwitterLogin}>
         <RiDesignQuillPenFill />
-        <span>Sign in to Tweet</span>
+        <span>Connect Twitter</span>
       </WriteTweetButton>
     </>
   );

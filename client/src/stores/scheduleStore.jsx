@@ -19,19 +19,37 @@ export function ScheduleProvider(props) {
 
       // Add a new tweet to the schedule
       addScheduledTweets(tweet) {
-        setScheduledTweets([...scheduledTweets, tweet]);
+        // place tweet in the correct position
+        const index = scheduledTweets.findIndex(
+          (item) => item.publishDate > tweet.publishDate
+        );
+
+        if (index === -1) {
+          // if the tweet is the latest, add it to the end
+
+          setScheduledTweets([...scheduledTweets, tweet]);
+        } else {
+          // if the tweet is not the latest, add it to the correct position
+
+          setScheduledTweets([
+            ...scheduledTweets.slice(0, index),
+            tweet,
+            ...scheduledTweets.slice(index),
+          ]);
+        }
       },
 
       // Update the scheduled tweet
       editScheduledTweets(id, tweet) {
-        setScheduledTweets(
-          scheduledTweets.map((item) => {
-            if (item.id === id) {
-              return tweet;
-            }
-            return item;
-          })
-        );
+        // find the scheduled tweet
+        const index = scheduledTweets.findIndex((item) => item._id === id);
+
+        // update the scheduled tweet
+        setScheduledTweets([
+          ...scheduledTweets.slice(0, index),
+          tweet,
+          ...scheduledTweets.slice(index + 1),
+        ]);
       },
 
       // Remove a tweet from the schedule

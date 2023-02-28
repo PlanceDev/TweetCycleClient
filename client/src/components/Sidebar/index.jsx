@@ -128,15 +128,17 @@ export default function Sidebar() {
         </SideNavTop>
 
         <SideNavMiddle>
-          <LinkWrapper>
-            <LinkIcon>
-              <BsGearFill />
-            </LinkIcon>
+          <A href={"/a/account"}>
+            <LinkWrapper>
+              <LinkIcon>
+                <BsGearFill />
+              </LinkIcon>
 
-            <Show when={navOpen()}>
-              <LinkText>Settings</LinkText>
-            </Show>
-          </LinkWrapper>
+              <Show when={navOpen()}>
+                <LinkText>Account</LinkText>
+              </Show>
+            </LinkWrapper>
+          </A>
 
           <LinkWrapper onClick={handleLogout}>
             <LinkIcon>

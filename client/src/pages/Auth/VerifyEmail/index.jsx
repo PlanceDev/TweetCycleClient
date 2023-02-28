@@ -33,7 +33,10 @@ export default function VerifyEmail() {
         token: token(),
       })
       .then((res) => {
-        console.log(res);
+        if (res.status !== 200) {
+          return toast.error("Something went wrong! Please try again later.");
+        }
+
         toast.success("Email verified!");
         setEmailVerified(true);
         navigate("/auth/login");

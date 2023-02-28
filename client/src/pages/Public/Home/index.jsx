@@ -1,6 +1,6 @@
 import { styled } from "solid-styled-components";
 import { createEffect, createSignal, Show, onMount } from "solid-js";
-import { useNavigate } from "@solidjs/router";
+import { useNavigate, A } from "@solidjs/router";
 import { AiFillCheckCircle } from "solid-icons/ai";
 import tclLight from "../../../assets/tcl-light.svg";
 import mobileMockUp from "../../../assets/mobile-mockup.svg";
@@ -12,6 +12,7 @@ import { BsTwitter, BsDiscord } from "solid-icons/bs";
 
 export default function Home() {
   const navigate = useNavigate();
+  const year = new Date().getFullYear();
 
   return (
     <>
@@ -22,14 +23,14 @@ export default function Home() {
               <span>
                 <p>
                   <HighlightedText> INTUITIVE </HighlightedText>
-                  <span>TWITTER AUTOMATION</span>
+                  <span>TWITTER MANAGEMEMENT</span>
                 </p>
 
                 <h1>
                   AI powered Twitter <HighlightedText>growth</HighlightedText>
                 </h1>
 
-                <p>Generate. Schedule. Get noticed.</p>
+                <p>Generate. Schedule. Automate.</p>
               </span>
             </HeroBannerLeftText>
 
@@ -85,22 +86,35 @@ export default function Home() {
               <h4>Schedule</h4>
 
               <p>
-                Optimal Posting Schedule: We analyze your Twitter account and
-                determine the best times to post your content. This ensures that
-                your tweets get maximum exposure and engagement from your
-                followers.
+                Plan and create your tweets ahead of time and schedule them to
+                be posted at a later date and time for maximum engagement and
+                reach. This includes the ability to schedule threads and tweets.
               </p>
             </AboutItem>
 
-            <AboutItem>
+            {/* <AboutItem>
               <h4>Automate</h4>
 
               <p>
-                Personalized Content Creation: Our tool generates content that
-                is tailored to your audience and reflects your unique voice. We
-                use machine learning algorithms to identify the topics that your
-                followers are interested in, and then we create tweets that are
-                both engaging and informative.
+                Fully autonomous: We take care of everything. Our tool will
+                generate and schedule your tweets for you, so you can focus on
+                other aspects of your business. You can also use our tool to
+                find new followers and engage with them. We will automatically
+                send them a direct message, follow them back, and like and
+                respond to replies to your tweets.
+              </p>
+            </AboutItem> */}
+
+            <AboutItem>
+              <h4>
+                {" "}
+                Manage <span>Coming Soon </span>{" "}
+              </h4>
+
+              <p>
+                Manage all of your accounts in one place. Our tool allows you to
+                manage multiple accounts and switch between them with ease. You
+                can also manage your contacts and leads in one place.
               </p>
             </AboutItem>
           </AboutBodyRight>
@@ -191,18 +205,18 @@ export default function Home() {
 
           <FooterLeftText>
             <p>
-              © 2023 <span>Tweet Cycle</span>.
+              © {year} <span>Tweet Cycle</span>.
             </p>
           </FooterLeftText>
         </FooterLeft>
 
         <FooterRight>
           <FooterRightLink>
-            <a href="/">Terms of Service</a>
+            <A href="/terms-of-service">Terms of Service</A>
           </FooterRightLink>
 
           <FooterRightLink>
-            <a href="#">Privacy Policy</a>
+            <A href="/terms-of-service">Privacy Policy</A>
           </FooterRightLink>
         </FooterRight>
       </FooterContainer>
@@ -226,6 +240,7 @@ const HeroBanner = styled("div")`
   flex-direction: row;
   background-color: #f5f5f5;
   height: 95vh;
+
   /* justify-content: center;
   align-items: center; */
 
@@ -560,6 +575,15 @@ const AboutItem = styled("div")`
   h4 {
     font-size: 1.5rem;
     margin: 0;
+    color: #1d9bf0;
+  }
+
+  span {
+    font-size: 1rem;
+    color: #0f1419;
+    background-color: #ffd900;
+    border-radius: 5px;
+    padding: 5px;
   }
 
   p {

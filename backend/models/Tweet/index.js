@@ -54,6 +54,34 @@ const tweetSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// @route  PUT /api/tweet/:id
+// @desc   Updates a tweet
+// @access Private
+// @type   Remove image
+tweetSchema.statics.removeImageFromTweet = async function (creator, _id, key) {
+  const tweet = await this.updateOne(
+    {
+      _id,
+      creator,
+      "thread.attachments.key": key,
+    },
+    {
+      $pull: {
+        "thread.$.attachments": { key },
+      },
+    }
+  );
+
+  await s3
+    .deleteObject({
+      Bucket: process.env.S3_BUCKET_NAME,
+      Key: key,
+    })
+    .promise();
+
+  return { tweet };
+};
+
 // @route   DELETE /api/tweet/:id
 // @desc    Deletes a tweet
 // @access  Private

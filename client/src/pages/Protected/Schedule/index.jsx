@@ -7,6 +7,7 @@ import { AiFillClockCircle } from "solid-icons/ai";
 import { AiFillEye } from "solid-icons/ai";
 import { RiDocumentDraftLine } from "solid-icons/ri";
 import { BsCalendar2CheckFill } from "solid-icons/bs";
+import { toast } from "solid-toast";
 import { useSchedule } from "../../../stores/scheduleStore";
 import { useTweet } from "../../../stores/tweetStore";
 import { useDrawer } from "../../../stores/rightDrawerStore";
@@ -56,6 +57,10 @@ export default function Schedule() {
       const res = await axios.get(`${SOLID_APP_API_SERVER}/tweet/scheduled`, {
         withCredentials: true,
       });
+
+      if (res.status !== 200) {
+        return toast.error("Error getting scheduled tweets");
+      }
 
       let tweets = res.data.tweets;
 
@@ -116,7 +121,7 @@ export default function Schedule() {
 
                   <Show when={st.thread.length > 1}>
                     <TweetIsThread>
-                      {/* <span>+{st.thread.length - 1} more</span> */}
+                      <span>+{st.thread.length - 1} more</span>
                       {/* Thread */}
                     </TweetIsThread>
                   </Show>

@@ -52,7 +52,10 @@ export default function ResetPassword() {
         confirmPw: formData().confirmPw,
       })
       .then((res) => {
-        console.log(res);
+        if (res.status !== 200) {
+          return toast.error("Something went wrong! Please try again later.");
+        }
+
         toast.success("Password successfully reset!");
         setPasswordReset(true);
         navigate("/auth/login");

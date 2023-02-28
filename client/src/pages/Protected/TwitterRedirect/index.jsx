@@ -27,6 +27,9 @@ export default function TwitterRedirect() {
         { withCredentials: true }
       )
       .then((res) => {
+        if (res.status !== 200) {
+          return toast.error("Something went wrong! Please try again later!");
+        }
         toast.success("Twitter connected!");
         initializeUser(res.data);
       })

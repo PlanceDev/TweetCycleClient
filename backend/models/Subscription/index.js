@@ -15,10 +15,10 @@ const subscriptionSchema = new mongoose.Schema({
   plan: {
     type: String,
     required: true,
-    enum: ["trial", "growth", "enterprise"],
+    enum: ["trial", "basic", "premium", "enterprise"],
     default: "free",
   },
-  payPeriod: {
+  frequency: {
     type: String,
     required: true,
     enum: ["monthly", "yearly"],
@@ -27,10 +27,10 @@ const subscriptionSchema = new mongoose.Schema({
   status: {
     type: String,
     required: true,
-    enum: ["active", "inactive"],
+    enum: ["active", "inactive", "cancelled"],
     default: "active",
   },
-  renewalDate: {
+  currentPeriodEnd: {
     type: Date,
     required: true,
     default: Date.now() + 14 * 24 * 60 * 60 * 1000,
@@ -44,12 +44,12 @@ const subscriptionSchema = new mongoose.Schema({
 subscriptionSchema.statics.createSubscription = async function (
   owner,
   plan,
-  payPeriod
+  frequency
 ) {
   const subscription = await this.create({
     owner,
     plan,
-    payPeriod,
+    frequency,
   });
   return subscription;
 };

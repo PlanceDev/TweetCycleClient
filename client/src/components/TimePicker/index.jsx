@@ -1,6 +1,6 @@
 import moment from "moment";
 import { styled } from "solid-styled-components";
-import { createEffect, createSignal, For } from "solid-js";
+import { createEffect, createSignal, For, onMount, onCleanup } from "solid-js";
 import { TiArrowUpThick, TiArrowDownThick } from "solid-icons/ti";
 import { useTweet } from "../../stores/tweetStore";
 
@@ -17,9 +17,13 @@ export default function TimePicker() {
 
   createEffect(() => {
     const publishDate = moment(tweet.publishDate);
-    setHour(publishDate.format("h"));
-    setMinute(publishDate.format("mm"));
+
+    setHour(parseInt(publishDate.format("h")));
+
+    setMinute(parseInt(publishDate.format("mm")));
+
     setAmPm(publishDate.format("A"));
+
     setDate(publishDate.format("YYYY-MM-DD"));
   });
 

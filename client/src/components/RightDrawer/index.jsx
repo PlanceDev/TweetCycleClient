@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { createSignal, For, Show, onMount } from "solid-js";
+import { createSignal, For, Show, onMount, createEffect } from "solid-js";
 import { Fade } from "@suid/material";
 import TimePicker from "../TimePicker";
 import { CircularProgress } from "@suid/material";
@@ -31,6 +31,8 @@ export default function TemporaryDrawer() {
   const [selectedThread, setSelectedThread] = createSignal(0);
   const [loading, setLoading] = createSignal(false);
   const [isScheduling, setIsScheduling] = createSignal(false);
+  const [removedImages, setRemovedImages] = createSignal([]);
+  const [newImages, setNewImages] = createSignal([]);
 
   const [rightDrawer, { closeRightDrawer }] = useDrawer();
   const [scheduledTweets, { addScheduledTweets, editScheduledTweets }] =
@@ -38,8 +40,19 @@ export default function TemporaryDrawer() {
 
   const [
     tweet,
-    { addThread, handleBodyChange, removeTweet, handleImageUpload },
+    {
+      addThread,
+      handleBodyChange,
+      removeTweet,
+      handleImageUpload,
+      removeImage,
+    },
   ] = useTweet();
+
+  // Handle the text input
+  const HandleTextInput = (e) => {
+    handleBodyChange(e, selectedThread());
+  };
 
   // Open the drawer when the user clicks on the emoji button
   const handleToggleEmojis = (id) => {
@@ -59,8 +72,18 @@ export default function TemporaryDrawer() {
     );
   };
 
+  const handleEditImageUpload = async (name, b64, id) => {
+    const image = {
+      thread: id,
+      name,
+      b64,
+    };
+
+    setNewImages([...newImages(), image]);
+  };
+
   // Handle the image upload
-  const handleImageUploadClick = (e, id) => {
+  const handleImageUploadClick = async (e, id) => {
     if (tweet.thread[id].attachments.length >= 4) {
       toast.error("You can only upload 4 images per tweet.");
       return;
@@ -70,24 +93,58 @@ export default function TemporaryDrawer() {
     fileInput.type = "file";
     fileInput.click();
 
-    const checkAndUpload = (e, id) => {
+    const checkAndUpload = async (e, id) => {
       if (fileInput.size > 5242880) {
         toast.error("File size is too large. File must be less than 5MB.");
         return;
       }
 
-      handleImageUpload(e, id);
+      const file = e.target.files[0];
+      const fileData = await readImageFile(file);
+      const base64Image = fileData.split(",")[1];
+
+      // check if the file is an image
+      if (!file.type.startsWith("image/")) {
+        toast.error("You may only upload valid image files.");
+        return;
+      }
+
+      function readImageFile(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+
+          reader.onload = () => {
+            resolve(reader.result);
+          };
+
+          reader.onerror = (error) => {
+            reject(error);
+          };
+        });
+      }
+
+      if (rightDrawer.type === "edit") {
+        await handleEditImageUpload(file.name, base64Image, id);
+      }
+
+      handleImageUpload(file.name, base64Image, id);
     };
 
     fileInput.onchange = (e) => checkAndUpload(e, id);
   };
 
-  // Handle the text input
-  const HandleTextInput = (e) => {
-    handleBodyChange(e, selectedThread());
+  // Handle the remove image button
+  const handleRemoveImage = (id, index, key, name) => {
+    if (rightDrawer.type === "edit") {
+      setRemovedImages([...removedImages(), key]);
+      setNewImages(newImages().filter((image) => image.name !== name));
+    }
+
+    removeImage(id, index, key);
   };
 
-  // Handle the schedule tweet button TODO - make this one function
+  // Handle the schedule tweet button
   const handleScheduleTweet = () => {
     if (!user.twitterId)
       return toast.error("Please connect your Twitter account.");
@@ -102,6 +159,10 @@ export default function TemporaryDrawer() {
         { withCredentials: true }
       )
       .then((res) => {
+        if (res.status !== 200) {
+          toast.error("Something went wrong. Please try again.");
+          return;
+        }
         toast.success("Tweet scheduled successfully!");
         addScheduledTweets({ ...tweet });
         closeRightDrawer();
@@ -113,7 +174,7 @@ export default function TemporaryDrawer() {
       .finally(() => setIsScheduling(false));
   };
 
-  // Handle the tweet now button TODO - make this one function
+  // Handle the tweet now button
   const handleTweetNow = () => {
     if (!user.twitterId)
       return toast.error("Please connect your Twitter account.");
@@ -127,6 +188,10 @@ export default function TemporaryDrawer() {
         { withCredentials: true }
       )
       .then((res) => {
+        if (res.status !== 200 && res.status !== 201) {
+          toast.error("Something went wrong. Please try again.");
+          return;
+        }
         toast.success("Successfully tweeted!");
         closeRightDrawer();
       })
@@ -138,10 +203,51 @@ export default function TemporaryDrawer() {
   };
 
   // Handle the edit scheduled tweet button
-  const handleEditScheduledTweet = () => {
-    editScheduledTweets(tweet.id, { ...tweet });
-    toast.success("Tweet updated successfully!");
+  const handleEditScheduledTweet = (id) => {
+    if (!user.twitterId)
+      return toast.error("Please connect your Twitter account.");
+
+    const body = {
+      ...tweet,
+      removedImages: removedImages(),
+      newImages: newImages(),
+      type: "edit-scheduled-tweet",
+    };
+
+    setLoading(true);
+    setIsScheduling(true);
+
+    axios
+      .put(`${SOLID_APP_API_SERVER}/tweet/${tweet._id}`, body, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (res.status !== 200) {
+          toast.error("Something went wrong. Please try again.");
+          return;
+        }
+        editScheduledTweets(id, { ...tweet });
+        toast.success("Tweet updated successfully!");
+        closeRightDrawer();
+        setRemovedImages([]);
+        setNewImages([]);
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("Something went wrong. Please try again.");
+      })
+      .finally(() => {
+        setLoading(false);
+        setIsScheduling(false);
+      });
+  };
+
+  const handleCloseDrawer = () => {
     closeRightDrawer();
+    setShowEmojis(false);
+    setIsSchedule(false);
+    setNewImages([]);
+    setRemovedImages([]);
   };
 
   const drawer = () => (
@@ -184,7 +290,7 @@ export default function TemporaryDrawer() {
             <>
               <TweetDiv>
                 <For each={tweet.thread}>
-                  {(item) => (
+                  {(item, index) => (
                     <>
                       <TweetTextArea
                         key={item.id}
@@ -192,10 +298,6 @@ export default function TemporaryDrawer() {
                         value={item.body}
                         onChange={HandleTextInput}
                         onFocus={() => setSelectedThread(item.id)}
-                        // blur on mouse leave
-                        // onMouseLeave={() => {
-                        //   document.activeElement.blur();
-                        // }}
                         onMouseClickOutside={() => {
                           document.activeElement.blur();
                         }}
@@ -207,15 +309,35 @@ export default function TemporaryDrawer() {
                             {(attachment) => (
                               <>
                                 <AttachmentIcon>
-                                  <ImAttachment />
-                                  {attachment.name}
-                                </AttachmentIcon>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      "align-items": "center",
+                                      gap: "0.5rem",
+                                    }}
+                                  >
+                                    <ImAttachment />
+                                    {attachment.name.substring(0, 10) +
+                                      "..." +
+                                      attachment.name.substring(
+                                        attachment.name.length - 4,
+                                        attachment.name.length
+                                      )}
+                                  </div>
 
-                                {/* <AttachmentRemoveButton
-                            onClick={() => handleImageUpload(null, item.id)}
-                          >
-                            <ImAttachment />
-                          </AttachmentRemoveButton> */}
+                                  <AttachmentRemoveButton
+                                    onClick={() =>
+                                      handleRemoveImage(
+                                        index(),
+                                        item.id,
+                                        attachment.key,
+                                        attachment.name
+                                      )
+                                    }
+                                  >
+                                    <FaRegularTrashCan />
+                                  </AttachmentRemoveButton>
+                                </AttachmentIcon>
                               </>
                             )}
                           </For>
@@ -265,17 +387,24 @@ export default function TemporaryDrawer() {
               </AddButton>
             </ActionDiv>
 
-            {rightDrawer.type === "edit" ? (
+            <Show when={rightDrawer.type === "edit"}>
               <>
                 <TimePicker />
+
                 <ScheduleTweetNowDiv>
-                  <CancelButton onClick={closeRightDrawer}>Cancel</CancelButton>
-                  <SubmitButton onClick={handleEditScheduledTweet}>
+                  <CancelButton onClick={handleCloseDrawer}>
+                    Cancel
+                  </CancelButton>
+                  <SubmitButton
+                    onClick={() => handleEditScheduledTweet(tweet._id)}
+                  >
                     Save Tweet
                   </SubmitButton>
                 </ScheduleTweetNowDiv>
               </>
-            ) : (
+            </Show>
+
+            <Show when={rightDrawer.type !== "edit"}>
               <>
                 <Show when={isSchedule()}>
                   <TimePicker />
@@ -313,11 +442,11 @@ export default function TemporaryDrawer() {
                   </Fade>
                 </Show>
               </>
-            )}
+            </Show>
           </BottomDiv>
         </Show>
 
-        <DrawerBottom onClick={closeRightDrawer}>
+        <DrawerBottom onClick={handleCloseDrawer}>
           <HiSolidLogout />
           <span>Collapse</span>
         </DrawerBottom>
@@ -528,7 +657,7 @@ const TweetTextArea = styled("textarea")`
 
 const AttachmentDiv = styled("div")`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 10px;
   padding: 10px 0px;
   color: #000;
@@ -538,25 +667,25 @@ const AttachmentDiv = styled("div")`
 
 const AttachmentIcon = styled("div")`
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   background-color: #788fa147;
-  padding: 3px;
-  border-radius: 5px;
-  cursor: pointer;
+  padding: 5px;
+  border-radius: 3px;
+  gap: 10px;
 `;
 
 const AttachmentRemoveButton = styled("button")`
-  background-color: #fff;
-  color: #1da1f2;
   border: none;
   border-radius: 5px;
   padding: 5px 10px;
   font-size: 0.8rem;
-  margin-left: auto;
+
+  transition: all 0.2s ease-in-out;
 
   &:hover {
-    background-color: #f1f1f1;
+    color: #1d9bf0;
+    cursor: pointer;
   }
 `;
 

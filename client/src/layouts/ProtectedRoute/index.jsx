@@ -3,6 +3,7 @@ import { styled } from "solid-styled-components";
 import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
 import { useUser } from "../../stores/userStore";
+import MobileNavbar from "../../components/MobileNav";
 
 export default function ProtectedRoute() {
   const [user] = useUser();
@@ -14,7 +15,7 @@ export default function ProtectedRoute() {
     return (
       <>
         <PageContainer>
-          <MobileNav />
+          <MobileNavbar />
           <Sidebar />
 
           <PageRight>
@@ -32,11 +33,12 @@ const PageContainer = styled("div")`
   display: flex;
   flex-direction: column;
   /* gap: 10px; */
-  height: 100vh;
+  /* height: 90vh; */
   /* background-color: #f6f9f9; */
 
   @media screen and (min-width: 768px) {
     flex-direction: row;
+    height: 100vh;
   }
 `;
 

@@ -51,19 +51,23 @@ export default function VerticalTimeline() {
   const [items, setItems] = createSignal([
     {
       title: "Schedule Tweets",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      description:
+        "Plan and create your tweets ahead of time and schedule them to be posted at a later date and time for maximum engagement and reach.",
     },
     {
       title: "AI Generated Tweets",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      description:
+        "Use our tool's cutting-edge AI technology to automatically generate tweets tailored to your audience, saving you time and effort.",
     },
     {
       title: "AI Generated Growth Hacks",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      description:
+        "Get personalized growth recommendations, such as the best Twitter accounts to follow and optimal posting times, to help you grow your Twitter following.",
     },
     {
       title: "Contact & Lead Management",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      description:
+        "Manage your contacts and leads on Twitter with features like lead generation, contact management, and customer service support.",
     },
   ]);
 
