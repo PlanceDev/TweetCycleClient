@@ -6,6 +6,7 @@ import { SOLID_APP_API_SERVER } from "../../../config";
 import { AuthInput, AuthDiv, AuthNameDiv } from "./styles";
 import { useUser } from "../../../stores/userStore";
 import ConnectTwitter from "../../../components/ConnectTwitter";
+import { toast } from "solid-toast";
 
 export default function Account() {
   const [selectedPage, setSelectedPage] = createSignal("General");
@@ -24,6 +25,16 @@ export default function Account() {
     confirmPassword: "",
   });
 
+  createEffect(() => {
+    if (
+      passwordForm().currentPassword &&
+      passwordForm().newPassword &&
+      passwordForm().confirmPassword
+    ) {
+      return setPasswordDisabled(false);
+    }
+  });
+
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
 
@@ -37,15 +48,13 @@ export default function Account() {
 
   onMount(async () => {
     axios
-      .get(`${SOLID_APP_API_SERVER}/user`, {
+      .get(`${SOLID_APP_API_SERVER}/user/`, {
         withCredentials: true,
       })
       .then((res) => {
         if (res.status !== 200) {
           return toast.error("Something went wrong! Please try again later.");
         }
-
-        console.log(res.data);
       })
       .catch((err) => {
         console.log(err);
@@ -56,7 +65,41 @@ export default function Account() {
   const handleUpdatePassword = (e) => {
     e.preventDefault();
 
-    console.log("not disabled");
+    if (passwordForm().newPassword !== passwordForm().confirmPassword) {
+      return toast.error("Passwords do not match!");
+    }
+
+    if (passwordForm().newPassword.length < 8) {
+      return toast.error("Password must be at least 8 characters!");
+    }
+
+    if (passwordForm().currentPassword === passwordForm().newPassword) {
+      return toast.error(
+        "New password must be different from current password!"
+      );
+    }
+
+    axios
+      .put(`${SOLID_APP_API_SERVER}/user/${user._id}`, passwordForm(), {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (res.status !== 200) {
+          return toast.error("Something went wrong! Please try again later.");
+        }
+
+        setPasswordForm({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+
+        return toast.success("Password updated successfully!");
+      })
+      .catch((err) => {
+        console.log(err);
+        return toast.error("Something went wrong! Please try again later.");
+      });
   };
 
   return (
@@ -68,25 +111,26 @@ export default function Account() {
           <h2>Profile</h2>
           <p>
             Your email address is your identity on Tweet Cycle and is used to
-            log in.
+            log you in and send notifications about your account.
           </p>
 
           <AuthDiv>
             <AuthNameDiv>
               <label>Email</label>
-              <AuthInput type="text" value={user.email} />
+              <AuthInput disabled={true} type="text" value={user.email} />
             </AuthNameDiv>
 
             <AuthNameDiv>
               <label>Name</label>
               <AuthInput
+                disabled={true}
                 type="text"
                 value={user.firstName + " " + user.lastName}
               />
             </AuthNameDiv>
 
             <SettingsButtonDiv>
-              <SettingsButton>Save Changes</SettingsButton>
+              {/* <SettingsButton>Save Changes</SettingsButton> */}
             </SettingsButtonDiv>
           </AuthDiv>
 
@@ -131,7 +175,7 @@ export default function Account() {
             <SettingsButtonDiv>
               <SettingsButton
                 onClick={handleUpdatePassword}
-                disabled={passwordDisable}
+                disabled={passwordDisable()}
               >
                 Update Password
               </SettingsButton>

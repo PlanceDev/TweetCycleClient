@@ -17,4 +17,9 @@ router.get("/", userController.getUserById);
 // @access Private
 router.put("/:id", userController.updateUserById);
 
+// @route DELETE /api/user
+// @desc Deletes a user by id
+// @access Private
+router.delete("/:id", userController.deleteUserById);
+
 module.exports = router;

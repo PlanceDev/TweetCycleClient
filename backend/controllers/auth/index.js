@@ -59,7 +59,7 @@ exports.login = async (req, res) => {
     });
 
     return res.send({
-      user,
+      user: user.toObject(),
       subscription,
     });
   } catch (e) {

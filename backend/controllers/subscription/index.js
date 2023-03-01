@@ -65,11 +65,7 @@ exports.updateSubscriptionById = async (req, res) => {
     await subscription.save();
     await user.save();
 
-    // remove access tokens from the response
-    user.twitterAccessToken = undefined;
-    user.twitterAccessTokenSecret = undefined;
-
-    return res.status(200).send({ subscription, user });
+    return res.status(200).send({ subscription, user: user.toObject() });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error.message });

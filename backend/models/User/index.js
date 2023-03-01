@@ -148,7 +148,12 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.toJSON = function () {
   const user = this;
   const userObject = user.toObject();
+
   delete userObject.password;
+  delete userObject.twitterAccessToken;
+  delete userObject.twitterAccessTokenSecret;
+  delete userObject.__v;
+
   return userObject;
 };
 
@@ -235,6 +240,66 @@ userSchema.statics.verifyEmail = async function (owner) {
   }
 
   user.isEmailVerified = true;
+  await user.save();
+
+  return user;
+};
+
+// change password with old password
+userSchema.statics.changePassword = async function (
+  owner,
+  oldPassword,
+  newPassword,
+  confirmPassword
+) {
+  if ([oldPassword, newPassword, confirmPassword].some((field) => !field)) {
+    const err = new Error("All fields are required");
+    err.status = 422;
+    err.message = "All fields are required";
+    throw err;
+  }
+
+  if (newPassword.length < 8) {
+    const err = new Error("Password could not be changed");
+    err.status = 401;
+    err.message = "Password must be at least 8 characters";
+    throw err;
+  }
+
+  if (newPassword === oldPassword) {
+    const err = new Error("Password could not be changed");
+    err.status = 401;
+    err.message = "New password must be different from old password";
+    throw err;
+  }
+
+  if (newPassword !== confirmPassword) {
+    const err = new Error("Password could not be changed");
+    err.status = 401;
+    err.message = "Passwords do not match";
+    throw err;
+  }
+
+  const user = await this.findOne({ _id: owner });
+
+  if (!user) {
+    const err = new Error("Password could not be changed");
+
+    err.status = 401;
+    err.message = "Invalid Token";
+    throw err;
+  }
+
+  const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+  if (!isMatch) {
+    const err = new Error("Password could not be changed");
+    err.status = 401;
+    err.message = "Invalid Token";
+    throw err;
+  }
+
+  user.password = newPassword;
   await user.save();
 
   return user;

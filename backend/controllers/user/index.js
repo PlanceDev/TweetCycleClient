@@ -25,11 +25,9 @@ exports.getUserById = async (req, res) => {
       return res.status(401).send("Unauthorized.");
     }
 
-    // remove access tokens from the response
-    user.twitterAccessToken = undefined;
-    user.twitterAccessTokenSecret = undefined;
-
-    return res.status(200).send(user);
+    return res.status(200).send({
+      user: user.toObject(),
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -40,7 +38,16 @@ exports.getUserById = async (req, res) => {
 // @access Private
 exports.updateUserById = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id);
+    const user = await User.changePassword(
+      req.user._id,
+      req.body.currentPassword,
+      req.body.newPassword,
+      req.body.confirmPassword
+    );
+
+    return res.status(200).send({
+      user: user.toObject(),
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

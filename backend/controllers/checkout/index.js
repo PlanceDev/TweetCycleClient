@@ -57,11 +57,8 @@ exports.checkOutSuccess = async (req, res) => {
       secure: process.env.NODE_ENV !== "development",
     });
 
-    user.twitterAccessToken = undefined;
-    user.twitterAccessTokenSecret = undefined;
-
     return res.status(200).send({
-      user,
+      user: user.toObject(),
       subscription,
     });
   } catch (error) {
