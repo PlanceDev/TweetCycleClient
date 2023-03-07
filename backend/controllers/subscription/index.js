@@ -21,7 +21,7 @@ exports.createSubscription = async (req, res) => {
 // @access  Private
 exports.getSubscriptionById = async (req, res) => {
   try {
-    console.log("getSubscriptionById");
+    return res.status(401).send({ message: "Not implemented" });
 
     return res.status(200);
   } catch (error) {

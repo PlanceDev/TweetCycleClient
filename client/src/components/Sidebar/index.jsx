@@ -18,10 +18,14 @@ import { BiRegularTargetLock, BiSolidContact } from "solid-icons/bi";
 import { BsClockHistory, BsGearFill, BsTwitter } from "solid-icons/bs";
 import { BsFileEarmarkTextFill } from "solid-icons/bs";
 import { FaSolidClipboardCheck } from "solid-icons/fa";
+import { BiSolidBusiness } from "solid-icons/bi";
 import { FaSolidRepeat, FaRegularCalendarDays } from "solid-icons/fa";
 import { IoLogOutSharp } from "solid-icons/io";
 import { BiRegularLogOutCircle } from "solid-icons/bi";
+import { BsPeopleFill } from "solid-icons/bs";
 import { useUser } from "../../stores/userStore";
+import axios from "axios";
+import { SOLID_APP_API_SERVER } from "../../config";
 
 export default function Sidebar() {
   let toggle;
@@ -37,8 +41,14 @@ export default function Sidebar() {
   };
 
   const handleLogout = () => {
-    logoutUser();
-    navigate("/auth/login");
+    axios
+      .get(`${SOLID_APP_API_SERVER}/auth/logout`, {
+        withCredentials: true,
+      })
+      .finally(() => {
+        logoutUser();
+        navigate("/auth/login");
+      });
   };
 
   createEffect(() => {
@@ -106,25 +116,29 @@ export default function Sidebar() {
             </LinkWrapper>
           </A>
 
-          <LinkWrapper>
-            <LinkIcon>
-              <BiSolidContact />
-            </LinkIcon>
+          <A href={"/a/leads"}>
+            <LinkWrapper>
+              <LinkIcon>
+                <BiSolidBusiness />
+              </LinkIcon>
 
-            <Show when={navOpen()}>
-              <LinkText>Contacts</LinkText>
-            </Show>
-          </LinkWrapper>
+              <Show when={navOpen()}>
+                <LinkText>Leads</LinkText>
+              </Show>
+            </LinkWrapper>
+          </A>
 
-          <LinkWrapper>
-            <LinkIcon>
-              <FaSolidClipboardCheck />
-            </LinkIcon>
+          <A href={"/a/contacts"}>
+            <LinkWrapper>
+              <LinkIcon>
+                <BiSolidContact />
+              </LinkIcon>
 
-            <Show when={navOpen()}>
-              <LinkText>Projects</LinkText>
-            </Show>
-          </LinkWrapper>
+              <Show when={navOpen()}>
+                <LinkText>Contacts</LinkText>
+              </Show>
+            </LinkWrapper>
+          </A>
         </SideNavTop>
 
         <SideNavMiddle>
@@ -199,12 +213,12 @@ const SideNavHeader = styled("div")`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 5vh;
+  height: 10vh;
   padding: 10px;
   color: #788fa1;
   border-bottom: 0.1rem solid #788fa147;
   cursor: pointer;
-  margin-bottom: 15px;
+  /* margin-bottom: 15px; */
 `;
 
 const SideNavHeaderLeft = styled("div")`
@@ -253,7 +267,7 @@ const SideNavTop = styled("div")`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  height: 90%;
+  height: 80vh;
   gap: 10px;
   padding: 10px;
   color: #fff;
@@ -267,7 +281,7 @@ const LinkWrapper = styled("div")`
   gap: 10px;
   cursor: pointer;
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 400;
   padding: 5px 0px;
 
   &:hover {
@@ -314,7 +328,7 @@ const SideNavBottom = styled("div")`
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
-  height: fit-content;
+  height: 10vh;
   padding: 10px;
   cursor: pointer;
   font-size: 0.9rem;

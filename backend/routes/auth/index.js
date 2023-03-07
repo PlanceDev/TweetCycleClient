@@ -33,4 +33,14 @@ router.put("/reset-password", authController.resetPassword);
 // @access  Public
 router.post("/login", authController.login);
 
+// @route POST api/auth/refresh-token
+// @desc Refresh a users access token
+// @access Public
+router.post("/refresh-token", authController.refreshToken);
+
+// @route   GET api/auth/logout
+// @desc    Logout user
+// @access  Private
+router.get("/logout", protectedRoute, authController.logout);
+
 module.exports = router;

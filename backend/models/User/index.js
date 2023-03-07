@@ -3,6 +3,7 @@ const uuid = require("uuid");
 const bcrypt = require("bcrypt");
 const validator = require("mongoose-validator");
 const stripe = require("stripe")(process.env.STRIPE_LIVE_KEY);
+const { RefreshToken } = require("../RefreshToken");
 
 const nameValidator = [
   validator({
@@ -204,7 +205,7 @@ userSchema.statics.login = async function (email, password) {
 
   if (!user.isEmailVerified) {
     const err = new Error("Email not verified");
-    err.status = 401;
+    err.status = 417;
     err.message = "Email not verified";
     throw err;
   }
@@ -301,6 +302,8 @@ userSchema.statics.changePassword = async function (
 
   user.password = newPassword;
   await user.save();
+
+  await RefreshToken.deleteMany({ user: user._id });
 
   return user;
 };

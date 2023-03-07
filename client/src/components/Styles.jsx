@@ -11,7 +11,7 @@ export const ActionPill = styled("button")`
   padding: 5px 15px;
   font-weight: 500;
   font-size: 0.8rem;
-  border-radius: 5px;
+  border-radius: 3px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 
@@ -34,21 +34,26 @@ export const ActionPillsDiv = styled("div")`
 
 export const WriteTweetButton = styled("button")`
   display: flex;
+  height: 40px;
+  font-size: 0.9rem;
   align-items: center;
   justify-content: center;
   gap: 5px;
   border-radius: 2px;
   border: none;
-  height: 100%;
   background-color: #1da1f2;
   color: #fff;
-  padding: 0 10px;
-  margin-left: 10px;
+  padding: 10px;
+  /* margin-left: 10px; */
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 
   &:hover {
     background-color: #1a91da;
+  }
+
+  &:focus {
+    outline: none;
   }
 
   @media screen and (min-width: 768px) {
@@ -64,6 +69,7 @@ export const ScheduleContainer = styled("div")`
   height: 100vh;
   padding: 15px;
   overflow-y: auto;
+  font-family: "Poppins", sans-serif;
 `;
 
 export const ScheduleHeader = styled("div")`
@@ -100,15 +106,11 @@ export const ScheduledTweet = styled("div")`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 20px;
+  height: 60px;
   padding: 20px;
-  border-radius: 5px;
+  border-radius: 3px;
   border: 1px solid #ccc;
   transition: all 0.2s ease-in-out;
-
-  /* &:hover {
-    box-shadow: 0 0 5px #ccc;
-  } */
 
   @media screen and (max-width: 768px) {
     flex-direction: column;
@@ -122,8 +124,7 @@ export const ScheduledTweet = styled("div")`
 
 export const TweetDay = styled("span")`
   font-weight: 600;
-  font-size: 1rem;
-  /* margin: 10px 0px; */
+  font-size: 1.2rem;
 `;
 
 export const TweetTime = styled("div")`
@@ -167,16 +168,17 @@ export const EditIcon = styled("div")`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 20px;
-  width: 20px;
+  height: 40px;
+  width: 40px;
   padding: 5px;
   transition: all 0.2s ease-in-out;
   border-radius: 5px;
+  color: #a3a3a3;
 
   cursor: pointer;
 
   &:hover {
-    background-color: #ccc;
+    color: #000;
   }
 `;
 
@@ -184,18 +186,27 @@ export const DeleteIcon = styled("div")`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 20px;
-  width: 20px;
+  height: 40px;
+  width: 40px;
   border-radius: 50%;
   cursor: pointer;
+  color: #a3a3a3;
 
   padding: 5px;
   transition: all 0.2s ease-in-out;
   border-radius: 5px;
 
-  cursor: pointer;
-
   &:hover {
-    background-color: #ccc;
+    color: #000;
   }
+`;
+
+export const LoadingContainer = styled("div")`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 5px;
+  margin-top: 30px;
 `;

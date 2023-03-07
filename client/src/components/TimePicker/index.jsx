@@ -198,13 +198,11 @@ const TimePickerContainer = styled("div")`
   width: fit-content;
   align-items: center;
   justify-content: center;
-  background-color: #fff;
   border-radius: 2px;
   border: 1px solid #ccc;
   padding: 0.5rem;
   gap: 5px;
   width: 125px;
-  height: 50px;
   background-color: #fff;
 `;
 
@@ -317,7 +315,6 @@ const DatePickerContainer = styled("div")`
   gap: 15px;
   width: 125px;
   background-color: #fff;
-  height: 50px;
 `;
 
 const DateInput = styled("input")`

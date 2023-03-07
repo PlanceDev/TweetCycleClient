@@ -4,7 +4,9 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-// create generated tweets
+// @route   POST /api/tweet-generator
+// @desc    Generates tweets
+// @access  Private
 exports.generateTweets = async (req, res) => {
   try {
     const prompt = req.body.prompt;
@@ -61,5 +63,45 @@ exports.generateTweets = async (req, res) => {
     res.send(tweets);
   } catch (error) {
     console.log(error);
+  }
+};
+
+// @route   POST /api/tweet-generator/improve
+// @desc    Improves a tweet
+// @access  Private
+exports.improveTweet = async (req, res) => {
+  try {
+    if (req.user.status !== "active") {
+      return res.status(402).send({
+        error: "Your account must be active to improve a tweet.",
+      });
+    }
+
+    if (!req.user.twitterId) {
+      return res.status(401).send({
+        error: "You must first connect your twitter account.",
+      });
+    }
+
+    const prompt = req.body.body;
+
+    const newPrompt = `Please improve this tweet: ${prompt}`;
+
+    const completion = await openai.createCompletion({
+      model: "text-davinci-003",
+      prompt: newPrompt + "\n",
+      temperature: 0.7,
+      max_tokens: 256,
+      top_p: 1,
+      frequency_penalty: 0,
+      presence_penalty: 0,
+    });
+
+    const result = completion.data.choices[0].text.replace(/\n/g, "");
+
+    return res.send({ result });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send({ error: "Something went wrong" });
   }
 };

@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { Tweet } = require("../../models");
+const { Tweet, User, Subscription } = require("../../models");
 const uuid = require("uuid");
 const AWS = require("aws-sdk");
 
@@ -40,6 +40,12 @@ const removeFromS3 = async (key) => {
 // @access  Private
 exports.createTweet = async (req, res) => {
   try {
+    if (req.user.status !== "active") {
+      return res
+        .status(402)
+        .send({ error: "Your account must be active to create a tweet." });
+    }
+
     if (!req.user.twitterId) {
       return res
         .status(401)
@@ -138,6 +144,7 @@ exports.createTweet = async (req, res) => {
     // Save the new tweet to the database
     await tweet.save();
 
+    // If the tweet is tweet now, tweet it immediately
     if (req.body.type === "tweet-now") {
       await tweetNow(tweet, req.user._id);
     }
@@ -171,6 +178,8 @@ exports.getTweets = async (req, res) => {
 // @access  Private
 exports.getTweetById = async (req, res) => {
   try {
+    return res.status(401).send({ message: "Not implemented" });
+
     const tweet = await Tweet.getTweetById(req.params.id);
 
     return res.send({ tweet });

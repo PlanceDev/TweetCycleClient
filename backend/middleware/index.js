@@ -1,4 +1,4 @@
-const protectedRoute = require("./protected");
+const { protectedRoute } = require("./protected");
 
 module.exports = {
   protectedRoute,

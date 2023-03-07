@@ -247,6 +247,7 @@ const GeneratorContainer = styled("div")`
   height: 100vh;
   padding: 15px;
   overflow-y: auto;
+  font-family: "Poppins", sans-serif;
 `;
 
 const GeneratorHeader = styled("div")`
@@ -289,7 +290,7 @@ const PromptInputContainer = styled("div")`
 
 const PromptInput = styled("input")`
   width: 600px;
-  height: 25px;
+  height: 50px;
   padding: 10px;
   border: 1px solid #e3e3e3;
   border-radius: 3px;

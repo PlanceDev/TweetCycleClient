@@ -5,6 +5,9 @@ const tweetGeneratorController = require("./tweetGenerator");
 const userController = require("./user");
 const subscriptionController = require("./subscription");
 const checkoutController = require("./checkout");
+const contactController = require("./contact");
+const leadController = require("./lead");
+const taskController = require("./task");
 
 module.exports = {
   authController,
@@ -14,4 +17,7 @@ module.exports = {
   userController,
   subscriptionController,
   checkoutController,
+  contactController,
+  leadController,
+  taskController,
 };

@@ -20,6 +20,7 @@ export const AuthInput = styled("input")`
   justify-content: center;
   align-items: center;
   border: 1px solid #eaeaea;
-  height: 20px;
-  padding: 5px;
+  height: 35px;
+  padding: 10px;
+  font-size: 0.8rem;
 `;

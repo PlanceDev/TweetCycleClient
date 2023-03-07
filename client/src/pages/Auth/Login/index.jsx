@@ -59,8 +59,7 @@ export default function Login() {
           withCredentials: true,
         })
         .then((res) => {
-          console.log(res);
-          if (res.status === 401) {
+          if (res.status === 417) {
             navigate("/auth/resend-email");
             return toast.error("You must verify your email first!");
           }
@@ -70,9 +69,11 @@ export default function Login() {
           }
 
           if (res.status !== 200) {
+            console.log("invalid creds");
             return toast.error("Invalid credentials!");
           }
 
+          localStorage.setItem("accessToken", res.data.accessToken);
           initializeUser(res.data.user);
           initializeSubscription(res.data.subscription);
           navigate("/a/schedule");

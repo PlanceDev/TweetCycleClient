@@ -133,11 +133,10 @@ const Container = styled("div")`
   flex-direction: row;
   justify-content: space-between;
   background: #fff;
-  height: 5vh;
-  padding: 10px;
+  height: 10vh;
+  padding: 0 10px;
   color: #fff;
   border-bottom: 0.1rem solid #e0e0e0;
-  /* box-shadow: 0 0 0.3rem 0.1rem #00000047; */
 `;
 
 const ContainerLeft = styled("div")`

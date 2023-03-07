@@ -216,7 +216,7 @@ export default function Home() {
           </FooterRightLink>
 
           <FooterRightLink>
-            <A href="/terms-of-service">Privacy Policy</A>
+            <A href="/privacy-policy">Privacy Policy</A>
           </FooterRightLink>
         </FooterRight>
       </FooterContainer>
@@ -228,7 +228,8 @@ const HeroContainer = styled("div")`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  font-family: "Poppins", sans-serif;
+  font-family: "Poppins", sans-serif !important;
+  font-weight: 500;
 
   @media (max-width: 768px) {
     width: 100%;

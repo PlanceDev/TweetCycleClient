@@ -38,8 +38,8 @@ exports.checkOutSuccess = async (req, res) => {
       owner: user._id,
     });
 
-    // Send the user a JWT token
-    const token = jwt.sign(
+    // Create and send new access token to update user subscription
+    const accessToken = jwt.sign(
       {
         _id: user._id,
         twitterId: user.twitterId || null,
@@ -47,19 +47,16 @@ exports.checkOutSuccess = async (req, res) => {
         plan: subscription.plan,
         status: subscription.status,
       },
-      process.env.JWT_SECRET,
+      process.env.ACCESS_TOKEN_SECRET,
       {
         expiresIn: process.env.JWT_EXPIRES_IN,
       }
     );
 
-    res.cookie(process.env.TOKEN_PSUEDO_NAME, token, {
-      secure: process.env.NODE_ENV !== "development",
-    });
-
     return res.status(200).send({
       user: user.toObject(),
       subscription,
+      accessToken,
     });
   } catch (error) {
     console.log(error);

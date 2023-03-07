@@ -15,6 +15,7 @@ export default function Billing() {
 
   const handleUpgrade = () => {
     setLoading(true);
+
     axios
       .get(`${SOLID_APP_API_SERVER}/checkout/?plan=premium`, {
         withCredentials: true,
@@ -38,6 +39,13 @@ export default function Billing() {
 
   const handleCancelSubscription = () => {
     setLoading(true);
+
+    const headers = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    };
+
     axios
       .put(
         `${SOLID_APP_API_SERVER}/subscription/${subscription._id}`,
@@ -45,6 +53,7 @@ export default function Billing() {
           status: "cancelled",
         },
         {
+          headers,
           withCredentials: true,
         }
       )
@@ -108,7 +117,8 @@ export default function Billing() {
               <Show
                 when={
                   subscription.plan === "trial" ||
-                  subscription.status === "cancelled"
+                  subscription.status === "cancelled" ||
+                  subscription.status === "inactive"
                 }
               >
                 <p>

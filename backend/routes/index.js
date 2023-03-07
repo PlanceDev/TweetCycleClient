@@ -9,6 +9,9 @@ const tweetGeneratorRoutes = require("./tweetGenerator");
 const userRoutes = require("./user");
 const subscriptionRoutes = require("./subscription");
 const checkoutRoutes = require("./checkout");
+const contactRoutes = require("./contact");
+const leadRoutes = require("./lead");
+const taskRoutes = require("./task");
 
 // @route   /auth/*
 // @desc    Routes for authentication
@@ -44,5 +47,20 @@ router.use("/subscription", protectedRoute, subscriptionRoutes);
 // @desc    Routes for checkout
 // @access  Private
 router.use("/checkout", protectedRoute, checkoutRoutes);
+
+// @route   /contact/*
+// @desc    Routes for contact
+// @access  Private
+router.use("/contact", protectedRoute, contactRoutes);
+
+// @route   /lead/*
+// @desc    Routes for lead
+// @access  Private
+router.use("/lead", protectedRoute, leadRoutes);
+
+// @route   /task/*
+// @desc    Routes for task
+// @access  Private
+router.use("/task", protectedRoute, taskRoutes);
 
 module.exports = router;

@@ -7,6 +7,7 @@ import { Box, Button, Drawer } from "@suid/material";
 import { toast } from "solid-toast";
 import axios from "axios";
 
+import { Tooltip } from "@hope-ui/solid";
 import { HiSolidLogout } from "solid-icons/hi";
 import { AiFillTool } from "solid-icons/ai";
 import { BiRegularImageAdd } from "solid-icons/bi";
@@ -72,6 +73,7 @@ export default function TemporaryDrawer() {
     );
   };
 
+  // Handle the image upload
   const handleEditImageUpload = async (name, b64, id) => {
     const image = {
       thread: id,
@@ -242,6 +244,38 @@ export default function TemporaryDrawer() {
       });
   };
 
+  // Function for improving the tweet using the AI
+  const handleImprovedTweet = (item) => {
+    if (!user.twitterId)
+      return toast.error("Please connect your Twitter account.");
+
+    if (!item.body) return toast.error("Tweet can not be empty.");
+
+    axios
+      .post(`${SOLID_APP_API_SERVER}/tweet-generator/improve`, item, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (res.status !== 200) {
+          toast.error("Something went wrong. Please try again.");
+          return;
+        }
+
+        let e = {
+          target: {
+            value: res.data.result,
+          },
+        };
+
+        handleBodyChange(e, selectedThread());
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("Something went wrong. Please try again.");
+      })
+      .finally(() => setLoading(false));
+  };
+
   const handleCloseDrawer = () => {
     closeRightDrawer();
     setShowEmojis(false);
@@ -350,20 +384,35 @@ export default function TemporaryDrawer() {
                         </RemainingCharactersSpan>
 
                         <TweetActionsDiv>
-                          <FaSolidRobot />
+                          <Tooltip
+                            withArrow
+                            label="Use our AI to improve this tweet."
+                            placement="left"
+                            openDelay={300}
+                          >
+                            <TweetAction
+                              onClick={() => handleImprovedTweet(item)}
+                            >
+                              <FaSolidRobot />
+                            </TweetAction>
+                          </Tooltip>
 
-                          <BiRegularImageAdd
+                          <TweetAction
                             onClick={(e) => handleImageUploadClick(e, item.id)}
-                          />
+                          >
+                            <BiRegularImageAdd />
+                          </TweetAction>
 
-                          <OcSmiley2
+                          <TweetAction
                             onClick={() => handleToggleEmojis(item.id)}
-                          />
+                          >
+                            <OcSmiley2 />
+                          </TweetAction>
 
                           <Show when={tweet.thread.length > 1 && item.id !== 0}>
-                            <FaRegularTrashCan
-                              onClick={() => removeTweet(item.id)}
-                            />
+                            <TweetAction onClick={() => removeTweet(item.id)}>
+                              <FaRegularTrashCan />
+                            </TweetAction>
                           </Show>
                         </TweetActionsDiv>
                       </RemainingCharactersDiv>
@@ -468,13 +517,14 @@ const DrawerContainer = styled("div")`
   flex-direction: column;
   justify-content: space-between;
   height: 100vh;
+  font-family: "Poppins", sans-serif !important;
 `;
 
 const DrawerHeader = styled("div")`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 5vh;
+  height: 11vh;
   padding: 10px;
   color: #788fa1;
   /* background-color: #0f1419; */
@@ -488,7 +538,7 @@ const DrawerMiddle = styled("div")`
   height: 90vh;
   color: #788fa1;
   border-bottom: 0.1rem solid #788fa147;
-  padding: 0px 20px;
+  /* padding: 0px 20px; */
   overflow-y: auto;
   overflow-x: hidden;
 `;
@@ -526,12 +576,13 @@ const TweetActionsDiv = styled("div")`
   align-items: center;
   gap: 10px;
 
-  svg {
+  /* svg {
     display: flex;
+    height: 25px;
+    width: 25px;
     justify-content: center;
     align-items: center;
     background-color: #1d9bf0;
-    padding: 5px;
     border-radius: 5px;
     font-size: 1rem;
     color: #fff !important;
@@ -540,6 +591,23 @@ const TweetActionsDiv = styled("div")`
     &:hover {
       background-color: #1da1f2;
     }
+  } */
+`;
+
+const TweetAction = styled("div")`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 25px;
+  width: 25px;
+  background-color: #1d9bf0;
+  border-radius: 5px;
+  font-size: 1rem;
+  color: #fff !important;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #1da1f2;
   }
 `;
 
@@ -576,10 +644,9 @@ const AddButton = styled("button")`
   width: fit-content;
   padding: 5px 10px;
 
-  /* svg {
-    font-size: 0.8rem;
-    color: #1da1f2 !important;
-  } */
+  &:focus {
+    outline: none;
+  }
 
   &:hover {
     background-color: #1a91da;
@@ -605,20 +672,24 @@ const DrawerBottom = styled("div")`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  height: 5vh;
+  height: 10vh;
   color: #788fa1;
   border-bottom: 0.1rem solid #788fa147;
   cursor: pointer;
   padding: 0 10px;
+  transition: all 0.2s ease-in-out;
 
   svg {
-    font-size: 1.5rem;
     margin-right: 5px;
+  }
+
+  &:hover {
+    background-color: #788fa147;
   }
 `;
 
 const TweetTextArea = styled("textarea")`
-  height: 100px;
+  height: 150px;
   border-radius: 5px;
   border: 2px solid #ccc;
   resize: none;
@@ -629,15 +700,6 @@ const TweetTextArea = styled("textarea")`
   font-weight: 400;
   line-height: 1.5;
   letter-spacing: 0.00938em;
-  overflow: hidden;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  word-break: break-word;
-  word-break: break-word;
-  -webkit-hyphens: auto;
-  -moz-hyphens: auto;
-  -ms-hyphens: auto;
-  hyphens: auto;
   transition: all 0.2s ease-in-out;
 
   &:focus {

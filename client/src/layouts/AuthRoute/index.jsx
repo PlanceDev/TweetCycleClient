@@ -34,6 +34,7 @@ const PageContainer = styled("div")`
   display: flex;
   flex-direction: column;
   height: 100vh;
+  font-family: "Poppins", sans-serif;
 
   @media screen and (min-width: 768px) {
     flex-direction: row;

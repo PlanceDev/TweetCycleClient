@@ -33,6 +33,7 @@ export default function CheckoutSuccess() {
 
           initializeSubscription(res.data.subscription);
           initializeUser(res.data.user);
+          localStorage.setItem("accessToken", res.data.accessToken);
 
           return toast.success("Successfully subscribed!");
         })

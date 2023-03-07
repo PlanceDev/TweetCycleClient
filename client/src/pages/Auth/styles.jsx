@@ -24,6 +24,13 @@ export const AuthHeader = styled("div")`
   gap: 10px;
   flex: 10%;
   border-bottom: 1px solid #eaeaea;
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+  }
 `;
 
 export const AuthBody = styled("div")`
@@ -83,8 +90,8 @@ export const AuthNameInput = styled("input")`
   justify-content: center;
   align-items: center;
   border: 1px solid #eaeaea;
-  height: 30px;
-  padding: 5px;
+  height: 35px;
+  padding: 15px;
 `;
 
 export const AuthLabel = styled("label")`
@@ -101,8 +108,8 @@ export const AuthInput = styled("input")`
   justify-content: center;
   align-items: center;
   border: 1px solid #eaeaea;
-  height: 30px;
-  padding: 5px;
+  height: 35px;
+  padding: 15px;
 `;
 
 export const AuthFooter = styled("div")`

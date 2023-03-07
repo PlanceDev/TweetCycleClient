@@ -6,25 +6,40 @@ import { TweetProvider } from "./stores/tweetStore";
 import { ScheduleProvider } from "./stores/scheduleStore";
 import { RightDrawerProvider } from "./stores/rightDrawerStore";
 import { PublishedProvider } from "./stores/publishedStore";
+import { DraftedProvider } from "./stores/draftedStore";
+import { ManageDrawerProvider } from "./stores/manageDrawerStore";
+import { LeadsProvider } from "./stores/leadsStore";
+import { ContactsProvider } from "./stores/contactsStore";
+import { LeadProvider } from "./stores/leadStore";
 import "./index.css";
 import App from "./App";
 
 render(
   () => (
     <UserProvider>
-      <PublishedProvider>
-        <SubscriptionProvider>
-          <ScheduleProvider>
-            <TweetProvider>
-              <RightDrawerProvider>
-                <Router>
-                  <App />
-                </Router>
-              </RightDrawerProvider>
-            </TweetProvider>
-          </ScheduleProvider>
-        </SubscriptionProvider>
-      </PublishedProvider>
+      <ManageDrawerProvider>
+        <LeadsProvider>
+          <LeadProvider>
+            <ContactsProvider>
+              <PublishedProvider>
+                <DraftedProvider>
+                  <SubscriptionProvider>
+                    <ScheduleProvider>
+                      <TweetProvider>
+                        <RightDrawerProvider>
+                          <Router>
+                            <App />
+                          </Router>
+                        </RightDrawerProvider>
+                      </TweetProvider>
+                    </ScheduleProvider>
+                  </SubscriptionProvider>
+                </DraftedProvider>
+              </PublishedProvider>
+            </ContactsProvider>
+          </LeadProvider>
+        </LeadsProvider>
+      </ManageDrawerProvider>
     </UserProvider>
   ),
 

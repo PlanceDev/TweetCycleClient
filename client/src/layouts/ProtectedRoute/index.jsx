@@ -32,6 +32,7 @@ export default function ProtectedRoute() {
 const PageContainer = styled("div")`
   display: flex;
   flex-direction: column;
+  font-family: "Poppins", sans-serif;
   /* gap: 10px; */
   /* height: 90vh; */
   /* background-color: #f6f9f9; */

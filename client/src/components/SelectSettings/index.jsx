@@ -10,21 +10,7 @@ import { AiFillClockCircle } from "solid-icons/ai";
 import { AiFillEye } from "solid-icons/ai";
 import { RiDocumentDraftLine } from "solid-icons/ri";
 import { BsCalendar2CheckFill } from "solid-icons/bs";
-import {
-  ActionPill,
-  ActionPillsDiv,
-  ScheduleContainer,
-  ScheduleBody,
-  ScheduleHeader,
-  ScheduledTweet,
-  TweetDay,
-  TweetTime,
-  TweetIsThread,
-  TweetPreview,
-  EditDeleteContainer,
-  EditIcon,
-  DeleteIcon,
-} from "../Styles";
+import { ActionPill, ActionPillsDiv, ScheduleHeader } from "../Styles";
 
 export default function SelectSettings({ selectedPage = "General" }) {
   const navigate = useNavigate();

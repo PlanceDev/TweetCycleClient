@@ -1,48 +1,71 @@
 const jwt = require("jsonwebtoken");
+const axios = require("axios");
 
-module.exports = (req, res, next) => {
-  try {
-    // Get the token from the header, query string, or request body
-    if (!req.headers.cookie) {
-      return res.status(403).send({
-        error: "Unauthorized",
-        message: "No token provided",
-      });
-    }
-
-    const token =
-      req.headers.cookie.split("=")[1] ||
-      req.headers["x-access-token"] ||
-      req.query.token ||
-      req.body.token ||
-      req.headers.authorization;
-
-    // Check if a token was provided
-    if (!token) {
-      return res.status(440).send({
-        error: "Unauthorized",
-        message: "No token provided",
-      });
-    }
-
-    // Verify the token
-    jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
-      if (error) {
-        return res.status(440).send({
-          error: "Unauthorized",
-          message: "Invalid token",
-        });
+async function verifyAccessToken(access_token) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(
+      access_token,
+      process.env.ACCESS_TOKEN_SECRET,
+      (error, decoded) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(decoded);
+        }
       }
+    );
+  });
+}
 
-      // If the token is valid, save the decoded token to the request object
-      req.user = decoded;
+exports.protectedRoute = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization || req.headers.Authorization;
 
-      next();
-    });
+    if (!authHeader?.startsWith("Bearer ")) {
+      return res.status(401).send({ message: "No token provided" });
+    }
+
+    const access_token = authHeader.split(" ")[1];
+
+    await verifyAccessToken(access_token)
+      .then((decoded) => {
+        req.user = decoded;
+        next();
+        return;
+      })
+      .catch(async (error) => {
+        if (error.name === "TokenExpiredError") {
+          const refresh_token = req.cookies.refresh_token;
+
+          const decodedUser = jwt.decode(access_token);
+
+          const getNewToken = await axios.post(
+            `${process.env.SERVER_URL}/auth/refresh-token`,
+            {
+              refresh_token,
+              decodedUser,
+            }
+          );
+
+          if (!getNewToken) {
+            const error = new Error("Invalid token");
+            error.status = 440;
+            throw error;
+          }
+
+          const newAccessToken = getNewToken.data.accessToken;
+
+          res.setHeader("Authorization", `Bearer ${newAccessToken}`);
+          res.header("Access-Control-Expose-Headers", "Authorization");
+          req.user = jwt.decode(newAccessToken);
+          next();
+          return verifyAccessToken(newAccessToken);
+        }
+      });
   } catch (e) {
-    console.log(e);
+    console.log(e.message);
     res
-      .status(500)
+      .status(e.response.status || 500)
       .send({ error: "An error has occured trying to authenticate the user" });
   }
 };

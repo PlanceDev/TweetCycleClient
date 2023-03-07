@@ -2,9 +2,8 @@ import { styled } from "solid-styled-components";
 import { createEffect, createSignal, Show, onMount } from "solid-js";
 import moment from "moment";
 import { useNavigate } from "@solidjs/router";
-import { FiEdit } from "solid-icons/fi";
-import { FaRegularTrashCan } from "solid-icons/fa";
 import { AiFillClockCircle } from "solid-icons/ai";
+import { CircularProgress } from "@suid/material";
 import { FaRegularEye } from "solid-icons/fa";
 import { toast } from "solid-toast";
 import { useUser } from "../../../stores/userStore";
@@ -12,12 +11,10 @@ import { useSchedule } from "../../../stores/scheduleStore";
 import { useTweet } from "../../../stores/tweetStore";
 import { usePublished } from "../../../stores/publishedStore";
 import { useDrawer } from "../../../stores/rightDrawerStore";
+import { Tooltip } from "@hope-ui/solid";
 import {
-  ActionPill,
-  ActionPillsDiv,
   ScheduleContainer,
   ScheduleBody,
-  ScheduleHeader,
   ScheduledTweet,
   TweetDay,
   TweetTime,
@@ -25,7 +22,7 @@ import {
   TweetPreview,
   EditDeleteContainer,
   EditIcon,
-  DeleteIcon,
+  LoadingContainer,
 } from "../../../components/Styles";
 
 import axios from "axios";
@@ -34,6 +31,7 @@ import ScheduleHistory from "../../../components/ScheduleHistory";
 
 export default function Published() {
   const navigate = useNavigate();
+  const [loading, setLoading] = createSignal(true);
   const [user, { setUser }] = useUser();
   const [rightDrawer, { openRightDrawer, setRightDrawerType }] = useDrawer();
   const [tweet, { initializeTweet }] = useTweet();
@@ -90,6 +88,10 @@ export default function Published() {
       initializePublishedTweets(publishedTweets);
     } catch (err) {
       console.log(err);
+    } finally {
+      setTimeout(() => {
+        setLoading(false);
+      }, 500);
     }
   });
 
@@ -99,57 +101,70 @@ export default function Published() {
         <ScheduleHistory selectedPage="Published" />
 
         <ScheduleBody>
-          <Show when={publishedTweets.length === 0}>
-            <p>You don't have any published tweets.</p>
+          <Show when={loading()}>
+            <LoadingContainer>
+              <CircularProgress />
+              <p>Loading published tweets...</p>
+            </LoadingContainer>
           </Show>
 
-          {publishedTweets.map((pt, i) => (
-            <>
-              <Show when={days()[i] !== days()[i - 1]}>
-                <TweetDay>
-                  <Show
-                    when={
-                      moment(pt.publishDate).format("dddd") ===
-                      moment(new Date()).format("dddd")
-                    }
-                    fallback={moment(pt.publishDate).format("dddd")}
-                  >
-                    Today
-                  </Show>{" "}
-                  | {moment(pt.publishDate).format("MMMM DD")}
-                </TweetDay>
-              </Show>
+          <Show when={!loading()}>
+            <Show when={publishedTweets.length === 0}>
+              <p>You don't have any published tweets.</p>
+            </Show>
 
-              <ScheduledTweet>
-                <TweetTime>
-                  <AiFillClockCircle />
-                  {moment(pt.publishDate).format("h:mm a").toUpperCase()}
-                </TweetTime>
+            {publishedTweets.map((pt, i) => (
+              <>
+                <Show when={days()[i] !== days()[i - 1]}>
+                  <TweetDay>
+                    <Show
+                      when={
+                        moment(pt.publishDate).format("dddd") ===
+                        moment(new Date()).format("dddd")
+                      }
+                      fallback={moment(pt.publishDate).format("dddd")}
+                    >
+                      Today
+                    </Show>{" "}
+                    | {moment(pt.publishDate).format("MMMM DD")}
+                  </TweetDay>
+                </Show>
 
-                <TweetPreview>
-                  <span>
-                    {pt.thread[0].body.toString().substring(0, 50)}
+                <ScheduledTweet>
+                  <TweetTime>
+                    <AiFillClockCircle />
+                    {moment(pt.publishDate).format("h:mm a").toUpperCase()}
+                  </TweetTime>
 
-                    <Show when={pt.thread[0].body.toString().length > 50}>
-                      ...
+                  <TweetPreview>
+                    <span>
+                      {pt.thread[0].body.toString().substring(0, 50)}
+
+                      <Show when={pt.thread[0].body.toString().length > 50}>
+                        ...
+                      </Show>
+                    </span>
+
+                    <Show when={pt.thread.length > 1}>
+                      <TweetIsThread>
+                        <span>+{pt.thread.length - 1} more</span>
+                      </TweetIsThread>
                     </Show>
-                  </span>
+                  </TweetPreview>
 
-                  <Show when={pt.thread.length > 1}>
-                    <TweetIsThread>
-                      <span>+{pt.thread.length - 1} more</span>
-                    </TweetIsThread>
-                  </Show>
-                </TweetPreview>
-
-                <EditDeleteContainer>
-                  <EditIcon onClick={() => handleViewTweet(pt.initialTweetId)}>
-                    <FaRegularEye />
-                  </EditIcon>
-                </EditDeleteContainer>
-              </ScheduledTweet>
-            </>
-          ))}
+                  <EditDeleteContainer>
+                    <Tooltip withArrow label="View Tweet" placement="top-start">
+                      <EditIcon
+                        onClick={() => handleViewTweet(pt.initialTweetId)}
+                      >
+                        <FaRegularEye />
+                      </EditIcon>
+                    </Tooltip>
+                  </EditDeleteContainer>
+                </ScheduledTweet>
+              </>
+            ))}
+          </Show>
         </ScheduleBody>
       </ScheduleContainer>
     </>

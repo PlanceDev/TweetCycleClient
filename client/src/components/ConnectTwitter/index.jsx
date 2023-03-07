@@ -5,27 +5,32 @@ import { SOLID_APP_API_SERVER } from "../../config";
 import { RiDesignQuillPenFill } from "solid-icons/ri";
 import { WriteTweetButton } from "../../components/Styles";
 import { toast } from "solid-toast";
+import { useUser } from "../../stores/userStore";
 
 export default function ConnectTwitter() {
   const [twitterUrl, setTwitterUrl] = createSignal("");
+  const [user, { initializeUser }] = useUser();
 
   const handleTwitterLogin = () => {
     window.open(twitterUrl(), "_self");
   };
 
-  onMount(() => {
+  createEffect(() => {
+    if (!user.isAuth) return;
+
     axios
       .get(`${SOLID_APP_API_SERVER}/twitter/twitter-url`, {
         withCredentials: true,
       })
       .then((res) => {
         if (res.status !== 200) {
-          return toast.error("Something went wrong! Please try again later.");
+          return;
+          // return toast.error("Something went wrong! Please try again later.");
         }
         setTwitterUrl(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        return;
       });
   });
 

@@ -1,6 +1,11 @@
 const uuid = require("uuid");
 const jwt = require("jsonwebtoken");
-const { User, VerificationToken, Subscription } = require("../../models");
+const {
+  User,
+  VerificationToken,
+  Subscription,
+  RefreshToken,
+} = require("../../models");
 const {
   sendAccountVerificationEmail,
   sendResetPasswordEmail,
@@ -39,8 +44,7 @@ exports.login = async (req, res) => {
 
     const subscription = await Subscription.findOne({ owner: user._id });
 
-    // Send the user a JWT token
-    const token = jwt.sign(
+    const accessToken = jwt.sign(
       {
         _id: user._id,
         twitterId: user.twitterId || null,
@@ -48,20 +52,147 @@ exports.login = async (req, res) => {
         plan: subscription.plan,
         status: subscription.status,
       },
-      process.env.JWT_SECRET,
+      process.env.ACCESS_TOKEN_SECRET,
       {
         expiresIn: process.env.JWT_EXPIRES_IN,
       }
     );
 
-    res.cookie(process.env.TOKEN_PSUEDO_NAME, token, {
+    const refreshToken = jwt.sign(
+      {
+        _id: user._id,
+        twitterId: user.twitterId || null,
+        twitterUsername: user.twitterUsername || null,
+        plan: subscription.plan,
+        status: subscription.status,
+      },
+      process.env.REFRESH_TOKEN_SECRET,
+      {
+        expiresIn: process.env.REFRESH_EXPIRES_IN,
+      }
+    );
+
+    // Save refresh token to database
+    await RefreshToken.createRefreshToken(user._id, refreshToken);
+
+    res.cookie("refresh_token", refreshToken, {
       secure: process.env.NODE_ENV !== "development",
     });
 
     return res.send({
+      accessToken,
       user: user.toObject(),
       subscription,
     });
+  } catch (e) {
+    console.log(e);
+    return res.status(e.status || 500).send({ error: e.message });
+  }
+};
+
+// @route   POST /api/auth/refresh-token
+// @desc    Refreshes a users access token
+// @access  Public
+exports.refreshToken = async (req, res) => {
+  try {
+    const refreshToken =
+      req.cookies.refresh_token || req.cookie || req.body.refresh_token;
+
+    if (!refreshToken) {
+      return res.status(440).send({
+        error: "Unauthorized",
+        message: "No token provided",
+      });
+    }
+
+    // check the database to see if refresh token is still in the database
+    const isValidRefreshToken = await RefreshToken.findOne({
+      token: refreshToken,
+    });
+
+    if (!isValidRefreshToken) {
+      return res.status(440).send({
+        error: "Unauthorized",
+        message: "Invalid token",
+      });
+    }
+
+    jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET,
+      async (error, decoded) => {
+        if (error) {
+          return res.status(440).send({
+            error: "Unauthorized",
+            message: "Invalid token",
+          });
+        }
+
+        const user = await User.findById(decoded._id);
+        const subscription = await Subscription.findOne({ owner: user._id });
+
+        if (!user) {
+          return res.status(440).send({
+            error: "Unauthorized",
+            message: "Invalid token",
+          });
+        }
+
+        const accessToken = jwt.sign(
+          {
+            _id: user._id,
+            twitterId: user.twitterId || null,
+            twitterUsername: user.twitterUsername || null,
+            plan: subscription.plan,
+            status: subscription.status,
+          },
+          process.env.ACCESS_TOKEN_SECRET,
+          {
+            expiresIn: process.env.JWT_EXPIRES_IN,
+          }
+        );
+
+        return res.send({ accessToken });
+      }
+    );
+  } catch (e) {
+    console.log(e);
+    return res.status(e.status || 500).send({ error: e.message });
+  }
+};
+
+// @route   GET /api/auth/logout
+// @desc    Logs out a user
+// @access  Public
+exports.logout = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refresh_token;
+
+    if (!refreshToken) {
+      return res.status(440).send({
+        error: "Unauthorized",
+        message: "No token provided",
+      });
+    }
+
+    jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET,
+      async (error, decoded) => {
+        if (error) {
+          return res.status(440).send({
+            error: "Unauthorized",
+            message: "Invalid token",
+          });
+        }
+
+        await RefreshToken.deleteRefreshToken(decoded._id, refreshToken);
+
+        res.clearCookie("refresh_token");
+
+        return res.send({ message: "Logged out" });
+      }
+    );
   } catch (e) {
     console.log(e);
     return res.status(e.status || 500).send({ error: e.message });

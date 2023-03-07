@@ -1,13 +1,19 @@
 import styles from "./App.module.css";
 import { lazy, onCleanup } from "solid-js";
 import { Routes, Route, useNavigate } from "@solidjs/router";
-import { Toaster } from "solid-toast";
+import toast, { Toaster } from "solid-toast";
 import { createEffect } from "solid-js";
+import axios from "axios";
+import { useUser } from "./stores/userStore";
+import { useSubscription } from "./stores/subscriptionStore";
+import { SOLID_APP_API_SERVER, SOLID_APP_MODE } from "./config";
+import { HopeProvider } from "@hope-ui/solid";
 
 // Informational pages
 import PublicRoute from "./layouts/PublicRoute";
 import Home from "./pages/Public/Home";
 const TermsOfService = lazy(() => import("./pages/Public/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("./pages/Public/PrivacyPolicy"));
 
 // Authentication pages
 import AuthRoute from "./layouts/AuthRoute";
@@ -30,94 +36,97 @@ import TwitterRedirect from "./pages/Protected/TwitterRedirect";
 import Account from "./pages/Protected/Account";
 import Billing from "./pages/Protected/Account/Billing";
 import CheckoutSuccess from "./pages/Protected/Account/Billing/CheckoutSuccess";
-import { SOLID_APP_API_SERVER, SOLID_APP_MODE } from "./config";
-
-import axios from "axios";
-import { useUser } from "./stores/userStore";
-import { useSubscription } from "./stores/subscriptionStore";
+import Leads from "./pages/Protected/Leads";
+import ViewLead from "./pages/Protected/Leads/ViewLead";
+import Contacts from "./pages/Protected/Contacts";
+import ViewContact from "./pages/Protected/Contacts/ViewContact";
 
 function App() {
   const navigate = useNavigate();
   const [user, { logoutUser }] = useUser();
   const [subscription, { clearSubscription }] = useSubscription();
 
-  // add an interceptor to check for errors in responses
-  axios.interceptors.response.use(
-    (response) => {
-      return response;
-    },
-    (error) => {
-      if (error.response.status.toString() === "440") {
-        logoutUser();
-        clearSubscription();
-        navigate("/auth/login?expired=true");
-        return error;
+  // Add the authorization header to every request
+  axios.interceptors.request.use(
+    async (config) => {
+      const accessToken = localStorage.getItem("accessToken");
+
+      if (accessToken) {
+        config.headers["Authorization"] = `Bearer ${localStorage.getItem(
+          "accessToken"
+        )}`;
       }
 
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+
+  // add an interceptor to check for errors in responses
+  axios.interceptors.response.use(
+    async (response) => {
+      return response;
+    },
+    async (error) => {
+      if (error.response.status === 440) {
+        if (user) {
+          logoutUser();
+        }
+        clearSubscription();
+        toast.error("Your session has expired. Please log in again.");
+        navigate("/auth/login?expired=true");
+        return Promise.reject(error);
+      }
+
+      // TODO throw error instead. So we can properly handle errors in the .catch() block
       return error;
     }
   );
 
-  // createEffect(() => {
-  //   let ws;
-
-  //   if (SOLID_APP_MODE === "development") {
-  //     ws = new WebSocket(`ws://${SOLID_APP_API_SERVER.split("://")[1]}`);
-  //   } else {
-  //     ws = new WebSocket(`wss://${SOLID_APP_API_SERVER.split("://")[1]}`);
-  //   }
-
-  //   ws.onopen = () => {
-  //     console.log("Connected to server");
-  //   };
-
-  //   ws.onmessage = (event) => {
-  //     console.log(`Received message: ${event.data}`);
-  //     setMessage(event.data);
-  //   };
-
-  //   ws.onclose = () => {
-  //     console.log("Disconnected from server");
-  //   };
-
-  //   // Clean up the WebSocket connection when the component is unmounted
-  //   onCleanup(() => {
-  //     ws.close();
-  //   });
-  // });
-
   return (
     <>
-      <Routes>
-        <Route path="/" element={<PublicRoute />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
-        </Route>
+      <HopeProvider>
+        <Routes>
+          <Route path="/" element={<PublicRoute />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          </Route>
 
-        <Route path="/auth" element={<AuthRoute />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/resend-email" element={<ResendVerificationEmail />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-        </Route>
+          <Route path="/auth" element={<AuthRoute />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/resend-email" element={<ResendVerificationEmail />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+          </Route>
 
-        <Route path="/a" element={<ProtectedRoute />}>
-          <Route path="/schedule" element={<Schedule />} />
-          <Route path="/drafts" element={<Drafts />} />
-          <Route path="/published" element={<Published />} />
-          <Route path="/tweet-generator" element={<TweetGenerator />} />
-          <Route path="/twitter-redirect" element={<TwitterRedirect />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/account/billing" element={<Billing />} />
-          <Route
-            path="/account/billing/checkout-success"
-            element={<CheckoutSuccess />}
-          />
-        </Route>
-      </Routes>
-      <Toaster position="bottom-left" />
+          <Route path="/a" element={<ProtectedRoute />}>
+            <Route path="/schedule" element={<Schedule />} />
+            <Route path="/drafts" element={<Drafts />} />
+            <Route path="/published" element={<Published />} />
+            <Route path="/tweet-generator" element={<TweetGenerator />} />
+
+            <Route path="/leads" element={<Leads />} />
+            <Route path="/leads/:id" element={<ViewLead />} />
+
+            <Route path="/contacts" element={<Contacts />} />
+            <Route path="/contacts/:id" element={<ViewContact />} />
+
+            <Route path="/twitter-redirect" element={<TwitterRedirect />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/account/billing" element={<Billing />} />
+            <Route
+              path="/account/billing/checkout-success"
+              element={<CheckoutSuccess />}
+            />
+          </Route>
+        </Routes>
+        <Toaster position="bottom-left" />
+      </HopeProvider>
     </>
   );
 }

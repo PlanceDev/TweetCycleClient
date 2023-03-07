@@ -17,23 +17,12 @@ export function TweetProvider(props) {
 
       // Update the body of the selected thread
       handleBodyChange(e, id) {
-        setTweet({
-          ...tweet,
-          thread: tweet.thread.map((item) => {
-            if (item.id === id) {
-              return { ...item, body: e.target.value };
-            }
-            return item;
-          }),
-        });
+        setTweet("thread", (item) => item.id === id, "body", e.target.value);
       },
 
       // Handle the change of the publish date
       handlePublishDateChange(date) {
-        setTweet({
-          ...tweet,
-          publishDate: date,
-        });
+        setTweet("publishDate", date);
       },
 
       // Upload an image to the tweet
@@ -89,22 +78,34 @@ export function TweetProvider(props) {
       removeTweet(id) {
         if (tweet.thread.length === 1 || id === 0) return;
 
-        setTweet({
+        setTweet((tweet) => ({
           ...tweet,
-          thread: tweet.thread.filter((item) => item.id !== id),
-        });
+          thread: tweet.thread
+            .filter((item) => item.id !== id)
+            .map((item) => {
+              if (item.id > id) {
+                return { ...item, id: item.id - 1 };
+              }
+              return item;
+            }),
+        }));
 
-        // Update the id of the tweets after the deleted tweet
-        setTweet({
-          ...tweet,
-          thread: tweet.thread.map((item) => {
-            if (item.id > id) {
-              return { ...item, id: item.id - 1 };
-            }
+        // setTweet({
+        //   ...tweet,
+        //   thread: tweet.thread.filter((item) => item.id !== id),
+        // });
 
-            return item;
-          }),
-        });
+        // // Update the id of the tweets after the deleted tweet
+        // setTweet({
+        //   ...tweet,
+        //   thread: tweet.thread.map((item) => {
+        //     if (item.id > id) {
+        //       return { ...item, id: item.id - 1 };
+        //     }
+
+        //     return item;
+        //   }),
+        // });
       },
     },
   ];

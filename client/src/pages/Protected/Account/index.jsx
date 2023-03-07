@@ -1,16 +1,19 @@
 import { styled } from "solid-styled-components";
 import { createEffect, createSignal, Show, onMount } from "solid-js";
+import { useNavigate } from "@solidjs/router";
 import SelectSetttings from "../../../components/SelectSettings";
 import axios from "axios";
 import { SOLID_APP_API_SERVER } from "../../../config";
 import { AuthInput, AuthDiv, AuthNameDiv } from "./styles";
 import { useUser } from "../../../stores/userStore";
-import ConnectTwitter from "../../../components/ConnectTwitter";
+// import ConnectTwitter from "../../../components/ConnectTwitter";
 import { toast } from "solid-toast";
 
 export default function Account() {
+  const navigate = useNavigate();
   const [selectedPage, setSelectedPage] = createSignal("General");
   const [user, { initializeUser, updateUser, logoutUser }] = useUser();
+  const [resetWarning, setResetWarning] = createSignal(false);
 
   const [passwordDisable, setPasswordDisabled] = createSignal(true);
 
@@ -31,6 +34,7 @@ export default function Account() {
       passwordForm().newPassword &&
       passwordForm().confirmPassword
     ) {
+      setResetWarning(true);
       return setPasswordDisabled(false);
     }
   });
@@ -46,22 +50,7 @@ export default function Account() {
     });
   };
 
-  onMount(async () => {
-    axios
-      .get(`${SOLID_APP_API_SERVER}/user/`, {
-        withCredentials: true,
-      })
-      .then((res) => {
-        if (res.status !== 200) {
-          return toast.error("Something went wrong! Please try again later.");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        return toast.error("Something went wrong! Please try again later.");
-      });
-  });
-
+  // Update the user's password
   const handleUpdatePassword = (e) => {
     e.preventDefault();
 
@@ -79,6 +68,8 @@ export default function Account() {
       );
     }
 
+    setResetWarning(false);
+
     axios
       .put(`${SOLID_APP_API_SERVER}/user/${user._id}`, passwordForm(), {
         withCredentials: true,
@@ -94,6 +85,9 @@ export default function Account() {
           confirmPassword: "",
         });
 
+        logoutUser();
+        navigate("/auth/login");
+
         return toast.success("Password updated successfully!");
       })
       .catch((err) => {
@@ -101,6 +95,23 @@ export default function Account() {
         return toast.error("Something went wrong! Please try again later.");
       });
   };
+
+  // Retrieve the user's profile
+  onMount(async () => {
+    axios
+      .get(`${SOLID_APP_API_SERVER}/user/`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (res.status !== 200) {
+          return toast.error("Something went wrong! Please try again later.");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        return toast.error("Something went wrong! Please try again later.");
+      });
+  });
 
   return (
     <SettingsContainer>
@@ -180,6 +191,14 @@ export default function Account() {
                 Update Password
               </SettingsButton>
             </SettingsButtonDiv>
+
+            <Show when={resetWarning()}>
+              <ResetWarning>
+                <span>
+                  Resetting your password will log you out of all devices.
+                </span>
+              </ResetWarning>
+            </Show>
           </AuthDiv>
         </PasswordContainer>
 
@@ -372,5 +391,20 @@ const DisconnectTwitterButton = styled("button")`
   &:hover {
     background-color: #1d9bf0;
     opacity: 0.8;
+  }
+`;
+
+const ResetWarning = styled("div")`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #fff;
+
+  span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #a3a3a3;
   }
 `;
