@@ -1,29 +1,6 @@
 const mongoose = require("mongoose");
 const uuid = require("uuid");
 const validator = require("mongoose-validator");
-const { User } = require("../User");
-const { Note } = require("../Note");
-const { Contact } = require("../Contact");
-
-const nameValidator = [
-  validator({
-    validator: "isLength",
-    arguments: [2, 50],
-    message: "Name should be between {ARGS[0]} and {ARGS[1]} characters",
-  }),
-  validator({
-    validator: "isAlphanumeric",
-    passIfEmpty: true,
-    message: "Name should contain alpha-numeric characters only",
-  }),
-];
-
-const emailValidator = [
-  validator({
-    validator: "isEmail",
-    message: "Email is not valid",
-  }),
-];
 
 const leadSchema = new mongoose.Schema(
   {
@@ -57,6 +34,10 @@ const leadSchema = new mongoose.Schema(
       trim: true,
     },
     phone: {
+      type: String,
+      trim: true,
+    },
+    location: {
       type: String,
       trim: true,
     },
@@ -129,6 +110,8 @@ leadSchema.statics.createLead = async function (lead, creator) {
       throw err;
     }
 
+    const { User } = require("../User");
+
     const user = await User.findById(creator);
 
     if (!user) {
@@ -143,7 +126,13 @@ leadSchema.statics.createLead = async function (lead, creator) {
       throw err;
     }
 
+    let lead_id = uuid.v4();
+
+    const { Contact } = require("../Contact");
+
+    // Create a contact and add it to the lead
     const contact = new Contact({
+      lead: lead_id,
       creator,
       name: lead.contact,
       email: lead.email,
@@ -154,26 +143,33 @@ leadSchema.statics.createLead = async function (lead, creator) {
 
     await contact.save();
 
-    let note = null;
-
-    if (lead.note) {
-      note = new Note({
-        creator,
-        note: lead.note,
-      });
-
-      await note.save();
-    }
-
-    const newLead = await this.create({
+    // Create the lead and add the contact to it
+    const newLead = await new this({
+      _id: lead_id,
       creator,
       company: lead.company,
       contacts: [contact._id],
       email: lead.email,
       twitter: lead.twitter,
       phone: lead.phone,
-      notes: note ? [note._id] : [],
     });
+
+    // If there is a note, create a note and add it to the lead
+    const { Note } = require("../Note");
+
+    if (lead.note) {
+      const note = new Note({
+        creator,
+        body: lead.note,
+        lead: newLead._id,
+      });
+
+      await note.save();
+
+      newLead.notes = [note._id];
+    }
+
+    await newLead.save();
 
     return this.findOne({ creator, _id: newLead._id }).populate({
       path: "contacts",
@@ -224,18 +220,21 @@ leadSchema.statics.updateLeadStatus = async function (id, status, creator) {
     )
       .populate({
         path: "tasks",
+        model: "Task",
         select: "_id title description dueDate completed createdAt",
         options: { sort: { dueDate: 1 } },
       })
       .populate({
         path: "contacts",
+        model: "Contact",
         select: "_id name email phone createdAt",
-        options: { sort: { createdAt: 1 } },
+        options: { sort: { createdAt: -1 } },
       })
       .populate({
         path: "notes",
-        select: "_id title content createdAt",
-        options: { sort: { createdAt: 1 } },
+        model: "Note",
+        select: "_id body createdAt",
+        options: { sort: { createdAt: -1 } },
       });
 
     if (!lead) {

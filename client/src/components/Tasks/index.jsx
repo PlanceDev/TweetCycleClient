@@ -106,9 +106,16 @@ export default function Tasks() {
 
               <TaskRight>
                 <TaskRightTop>
-                  <TaskAction onClick={() => handleSelectTask(task._id)}>
-                    <FiEdit3 />
-                  </TaskAction>
+                  <Tooltip
+                    withArrow
+                    label="Edit Task."
+                    placement="right"
+                    openDelay={500}
+                  >
+                    <TaskAction onClick={() => handleSelectTask(task._id)}>
+                      <FiEdit3 />
+                    </TaskAction>
+                  </Tooltip>
 
                   <Show when={!task.completed}>
                     <TaskAction onClick={() => handleCompleteTask(task, true)}>
@@ -169,7 +176,7 @@ const TasksHeader = styled("div")`
   padding: 10px;
   font-size: 0.9rem;
   font-weight: 600;
-  background-color: #1d9bf0;
+  background-color: #0f1419;
   color: #fafafa;
   border-radius: 5px 5px 0 0;
 `;
@@ -178,7 +185,7 @@ const TaskCount = styled("div")`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #0f1419;
+  color: #1d9bf0;
   font-size: 0.7rem;
 `;
 
@@ -195,12 +202,12 @@ const TasksHeaderRight = styled("div")`
   align-items: center;
   gap: 10px;
   font-size: 1.2rem;
-  color: #e3e3e3;
+  color: #1d9bf0;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 
   &:hover {
-    color: #0f1419;
+    color: #fafafa;
   }
 `;
 
@@ -298,26 +305,14 @@ const TaskAction = styled("div")`
   }
 `;
 
-// const TaskRightBottom = styled("div")`
-//   display: flex;
-//   flex-direction: row;
-//   align-items: center;
-//   gap: 10px;
-
-//   span {
-//     color: ${(props) => (props.completed ? "#40d397" : "#fa9078")};
-//   }
-// `;
-
-const TaskRightBottom = styled("div")(
-  (props) => `
+const TaskRightBottom = styled("div")`
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: flex-end;
   gap: 10px;
 
   span {
-    color: ${props.completed ? "#40d397" : "#fa9078"};
+    color: ${(props) => (props.completed ? "#40d397" : "#fa9078")};
   }
-`
-);
+`;

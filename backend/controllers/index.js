@@ -8,6 +8,7 @@ const checkoutController = require("./checkout");
 const contactController = require("./contact");
 const leadController = require("./lead");
 const taskController = require("./task");
+const noteController = require("./note");
 
 module.exports = {
   authController,
@@ -20,4 +21,5 @@ module.exports = {
   contactController,
   leadController,
   taskController,
+  noteController,
 };

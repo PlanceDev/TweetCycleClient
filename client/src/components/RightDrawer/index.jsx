@@ -34,6 +34,7 @@ export default function TemporaryDrawer() {
   const [isScheduling, setIsScheduling] = createSignal(false);
   const [removedImages, setRemovedImages] = createSignal([]);
   const [newImages, setNewImages] = createSignal([]);
+  const [isImproving, setIsImproving] = createSignal(false);
 
   const [rightDrawer, { closeRightDrawer }] = useDrawer();
   const [scheduledTweets, { addScheduledTweets, editScheduledTweets }] =
@@ -251,6 +252,8 @@ export default function TemporaryDrawer() {
 
     if (!item.body) return toast.error("Tweet can not be empty.");
 
+    setIsImproving(true);
+
     axios
       .post(`${SOLID_APP_API_SERVER}/tweet-generator/improve`, item, {
         withCredentials: true,
@@ -273,7 +276,9 @@ export default function TemporaryDrawer() {
         console.log(err);
         toast.error("Something went wrong. Please try again.");
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setIsImproving(false);
+      });
   };
 
   const handleCloseDrawer = () => {
@@ -297,7 +302,7 @@ export default function TemporaryDrawer() {
         </DrawerHeader>
 
         <DrawerMiddle>
-          {loading() ? (
+          {loading() || isImproving() ? (
             <>
               <div
                 style={{
@@ -313,8 +318,16 @@ export default function TemporaryDrawer() {
 
                 <span>
                   <strong>
-                    <Show when={isScheduling()} fallback="Tweeting...">
+                    <Show when={isScheduling() && !isImproving()}>
                       Scheduling...
+                    </Show>
+
+                    <Show when={!isImproving() && !isScheduling()}>
+                      Tweeting...
+                    </Show>
+
+                    <Show when={isImproving() && !isScheduling()}>
+                      Improving tweet...
                     </Show>
                   </strong>
                 </span>

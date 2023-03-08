@@ -5,10 +5,13 @@ import { createEffect, createSignal, onMount, Show, Suspense } from "solid-js";
 import { AiFillEdit } from "solid-icons/ai";
 import { FaSolidLocationDot } from "solid-icons/fa";
 import { BiSolidContact } from "solid-icons/bi";
+import { AiFillPhone } from "solid-icons/ai";
+import { AiFillMail } from "solid-icons/ai";
 import { AiFillPlusCircle } from "solid-icons/ai";
 import { FaSolidCheck } from "solid-icons/fa";
 import { FaSolidCircleXmark } from "solid-icons/fa";
 import { FaSolidTrashCan } from "solid-icons/fa";
+import { BsGlobe } from "solid-icons/bs";
 import { Tooltip } from "@hope-ui/solid";
 import {
   ActionPill,
@@ -22,51 +25,29 @@ import { SOLID_APP_API_SERVER, SOLID_APP_MODE } from "../../../../config";
 import LeadStatus from "../../../../components/LeadStatus";
 import Tasks from "../../../../components/Tasks";
 import Contacts from "../../../../components/Contacts";
-
-// const testLead = {
-//   _id: 1,
-//   company: "Microsoft",
-//   contacts: [
-//     {
-//       name: "John Doe",
-//       email: "",
-//       phone: "",
-//       notes: "",
-//       title: "CEO",
-//     },
-//     {
-//       name: "Jane Doe",
-//       email: "",
-//       phone: "",
-//       notes: "",
-//       title: "CTO",
-//     },
-//   ],
-//   tasks: [
-//     {
-//       _id: 1,
-//       title: "Send follow up email",
-//       description: "Send follow up email to John Doe",
-//       dueDate: "3/5/2023",
-//       completed: true,
-//     },
-//   ],
-//   location: "Atlanta, GA",
-//   status: "New",
-//   email: "",
-//   phone: "",
-//   website: "",
-//   twitter: "",
-//   notes: "",
-//   createdAt: "2021-08-01T00:00:00.000Z",
-//   updatedAt: "2021-08-01T00:00:00.000Z",
-// };
+import Notes from "../../../../components/Notes";
 
 export default function ViewLead() {
   const navigate = useNavigate();
   const [isEditLead, setIsEditLead] = createSignal(false);
-  const [lead, { initializeLead, updateLead, updateTask, toggleTaskComplete }] =
-    useLead();
+  const [lead, { initializeLead }] = useLead();
+  const [leadDetails, setLeadDetails] = createSignal({
+    company: lead.company,
+    email: lead.email,
+    phone: lead.phone,
+    location: lead.location,
+  });
+
+  const handleChangeLeadDetails = (e) => {
+    setLeadDetails({
+      ...leadDetails(),
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleUpdateLead = () => {
+    console.log(leadDetails());
+  };
 
   onMount(() => {
     let path = useLocation().pathname.split("/");
@@ -94,32 +75,54 @@ export default function ViewLead() {
             </LeadInfoDiv>
 
             <LeadInfoDiv>
-              <BiSolidContact />
-              <span>{lead.contacts[0]?.name}</span>
-            </LeadInfoDiv>
+              <LeadInfoItem>
+                <BiSolidContact />
+                <span>{lead.contacts[0]?.name}</span>
+              </LeadInfoItem>
 
-            <LeadInfoDiv>
-              <FaSolidLocationDot />
-              <Show when={lead.location}>
-                <span>{lead.location}</span>
-              </Show>
+              <LeadInfoItem>
+                <FaSolidLocationDot />
 
-              <Show when={!lead.location}>
-                <span>Add Location</span>
-              </Show>
+                <span>Los Angeles, CA</span>
+              </LeadInfoItem>
+
+              <LeadInfoItem>
+                <Show when={!isEditLead()}>
+                  <AiFillMail />
+                  <span>pythonkoder@gmail.com</span>
+                </Show>
+
+                <Show when={isEditLead()}>
+                  <AiFillMail />
+                  <EditInput type="text" placeholder={lead.email} />
+                </Show>
+              </LeadInfoItem>
+
+              <LeadInfoItem>
+                <AiFillPhone />
+                <span>832-609-7262</span>
+              </LeadInfoItem>
             </LeadInfoDiv>
           </LeadInfoContainer>
 
           <ActionPillsDiv>
-            <ActionPill onClick={() => setIsEditLead(true)}>
-              <AiFillPlusCircle />
-              Note
-            </ActionPill>
+            <Show when={!isEditLead()}>
+              <ActionPill onClick={() => setIsEditLead(true)}>
+                <AiFillEdit />
+                Edit Lead
+              </ActionPill>
+            </Show>
 
-            <ActionPill onClick={() => setIsEditLead(true)}>
-              <AiFillEdit />
-              Delete
-            </ActionPill>
+            <Show when={isEditLead()}>
+              <ActionPill onClick={() => setIsEditLead(false)}>
+                Cancel
+              </ActionPill>
+
+              <ActionPill onClick={() => setIsEditLead(false)}>
+                <FaSolidCheck />
+                Save
+              </ActionPill>
+            </Show>
           </ActionPillsDiv>
         </LeadHeader>
 
@@ -130,7 +133,9 @@ export default function ViewLead() {
             <Contacts />
           </LeadBodyLeft>
 
-          <LeadBodyRight></LeadBodyRight>
+          <LeadBodyRight>
+            <Notes />
+          </LeadBodyRight>
         </LeadBody>
       </ViewLeadContainer>
     </>
@@ -154,8 +159,7 @@ export const LeadHeader = styled("div")`
 
   h1 {
     font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0;
+    font-weight: bold;
   }
 
   span {
@@ -189,6 +193,22 @@ const LeadInfoDiv = styled("div")`
   display: flex;
   flex-direction: row;
   align-items: center;
+  gap: 20px;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    height: auto;
+    padding: 10px;
+    gap: 10px;
+  }
+`;
+
+const LeadInfoItem = styled("div")`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   gap: 10px;
 `;
 
@@ -210,7 +230,7 @@ const LeadBodyLeft = styled("div")`
   flex: 40%;
   flex-direction: column;
   gap: 15px;
-  /* background-color: aliceblue; */
+  height: fit-content;
 `;
 
 const LeadBodyRight = styled("div")`
@@ -218,5 +238,17 @@ const LeadBodyRight = styled("div")`
   flex: 60%;
   flex-direction: column;
   gap: 15px;
-  background-color: #ccc;
+  height: fit-content;
+  /* background-color: #ccc; */
+`;
+
+const EditInput = styled("input")`
+  border: none;
+  border-bottom: 1px solid #ccc;
+  outline: none;
+  font-size: 0.9rem;
+
+  &:focus {
+    border-bottom: 1px solid #000;
+  }
 `;

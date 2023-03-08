@@ -22,12 +22,11 @@ export function LeadProvider(props) {
   const leadActions = [
     lead,
     {
-      // Initialize the lead
+      // Lead
       initializeLead(lead) {
         setLead(lead);
       },
 
-      // Update the lead
       updateLead(lead) {
         setLead(lead);
       },
@@ -36,6 +35,7 @@ export function LeadProvider(props) {
         setLead("tasks", (task) => task._id === _id, "completed", toggle);
       },
 
+      // Tasks
       addTask(task) {
         setLead("tasks", (tasks) => [task, ...tasks]);
       },
@@ -46,6 +46,24 @@ export function LeadProvider(props) {
 
       removeTask(_id) {
         setLead("tasks", (tasks) => tasks.filter((task) => task._id !== _id));
+      },
+
+      // Notes
+      addNote(note) {
+        setLead("notes", (notes) => [note, ...notes]);
+      },
+
+      editNote(note) {
+        setLead("notes", (n) => n._id === note._id, note);
+      },
+
+      removeNote(id) {
+        setLead("notes", (notes) => notes.filter((n) => n._id !== id));
+      },
+
+      // Contacts
+      addContact(contact) {
+        setLead("contacts", (contacts) => [contact, ...contacts]);
       },
     },
   ];

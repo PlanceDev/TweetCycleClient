@@ -4,6 +4,9 @@ import axios from "axios";
 import { createEffect, createSignal, onMount, Show } from "solid-js";
 import { BsCalendar2CheckFill } from "solid-icons/bs";
 import { IoPersonAddSharp } from "solid-icons/io";
+import { AiFillPhone } from "solid-icons/ai";
+import { AiFillMail } from "solid-icons/ai";
+import { Tooltip } from "@hope-ui/solid";
 import { useManageDrawer } from "../../../stores/manageDrawerStore";
 import { useLeads } from "../../../stores/leadsStore";
 import ManageDrawer from "../../../components/ManageDrawer";
@@ -75,16 +78,41 @@ export default function Leads() {
 
               <TableBody>
                 {leads.map((lead) => (
-                  <LeadTableRow onClick={() => handleViewLead(lead)}>
-                    <TableData>
+                  <LeadTableRow>
+                    <CompanyTableData onClick={() => handleViewLead(lead)}>
                       {lead.company.slice(0, 15)}
                       {lead.company.length > 15 && "..."}
-                    </TableData>
+                    </CompanyTableData>
 
                     <TableData>{lead.contacts[0].name}</TableData>
-                    <TableData>{lead.email}</TableData>
-                    <TableData>{lead.phone}</TableData>
-                    <TableData>{lead.twitter}</TableData>
+
+                    <Tooltip
+                      withArrow
+                      label={lead.email}
+                      placement="top"
+                      disabled={!lead.email}
+                      openDelay={500}
+                    >
+                      <IconTableData disabled={!lead.email}>
+                        <AiFillMail />
+                        {/* {lead.email} */}
+                      </IconTableData>
+                    </Tooltip>
+
+                    <Tooltip
+                      withArrow
+                      label={lead.phone}
+                      placement="top"
+                      disabled={!lead.phone}
+                      openDelay={500}
+                    >
+                      <IconTableData disabled={!lead.phone}>
+                        {/* {lead.phone} */}
+                        <AiFillPhone />
+                      </IconTableData>
+                    </Tooltip>
+
+                    <TableData>@{lead.twitter.split("/").pop()}</TableData>
                     <TableData>
                       {lead.status.charAt(0).toUpperCase() +
                         lead.status.slice(1)}
@@ -150,7 +178,7 @@ const Table = styled("table")`
 const TableHead = styled("thead")`
   padding: 10px;
   border-bottom: 1px solid #ddd;
-  background-color: #1d9bf0;
+  background-color: #0f1419;
   color: #fafafa;
 `;
 
@@ -162,11 +190,6 @@ const TableRow = styled("tr")`
 const LeadTableRow = styled("tr")`
   padding: 10px;
   border-bottom: 1px solid #ddd;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #f5f5f5;
-  }
 `;
 
 const TableBody = styled("tbody")`
@@ -175,29 +198,52 @@ const TableBody = styled("tbody")`
   font-weight: 500;
 `;
 
-const TableData = styled("td")`
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  max-width: 200px;
-  overflow: hidden;
-`;
-
-const TableDataDiv = styled("div")`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-
-  img {
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-  }
-`;
-
 const TableHeader = styled("th")`
   padding: 10px;
   border-bottom: 1px solid #ddd;
+`;
+
+const CompanyTableData = styled("td")`
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  max-width: 100px;
+  cursor: pointer;
+  text-decoration: underline;
+
+  &:hover {
+    color: #1d9bf0;
+  }
+`;
+
+const TableData = styled("td")`
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  max-width: 100px;
+`;
+
+const IconTableData = styled("td")`
+  display: table-cell;
+  border-bottom: 1px solid #ddd;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  width: 30px;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+
+  color: ${(props) => (props.disabled ? "#ccc" : "#333")};
+
+  svg {
+    width: 100%;
+  }
+
+  &:hover {
+    color: ${(props) => (props.disabled ? "#ccc" : "#1d9bf0")};
+    z-index: 10;
+  }
 `;
 
 const PageHeader = styled("div")`

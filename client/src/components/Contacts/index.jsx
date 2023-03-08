@@ -9,9 +9,11 @@ import { AiFillPlusCircle } from "solid-icons/ai";
 import { Tooltip } from "@hope-ui/solid";
 import { SOLID_APP_API_SERVER, SOLID_APP_MODE } from "../../config";
 import { useLead } from "../../stores/leadStore";
+import AddContact from "../Contacts/AddContact";
 
 export default function Contacts() {
   const [lead, {}] = useLead();
+  const [isAddContact, setIsAddContact] = createSignal(false);
 
   return (
     <ContactsContainer>
@@ -21,12 +23,16 @@ export default function Contacts() {
           <ContactCount> {lead.contacts.length} </ContactCount>
         </ContactsHeaderLeft>
 
-        <ContactsHeaderRight>
+        <ContactsHeaderRight onClick={() => setIsAddContact(true)}>
           <span>
             <AiFillPlusCircle />
           </span>
         </ContactsHeaderRight>
       </ContactsHeader>
+
+      <Show when={isAddContact()}>
+        <AddContact setIsAddContact={setIsAddContact} />
+      </Show>
 
       <For each={lead.contacts}>
         {(contact) => (
@@ -56,7 +62,7 @@ const ContactsHeader = styled("div")`
   padding: 10px;
   font-size: 0.9rem;
   font-weight: 600;
-  background-color: #1d9bf0;
+  background-color: #0f1419;
   color: #fafafa;
   border-radius: 5px 5px 0 0;
 `;
@@ -67,7 +73,7 @@ const ContactCount = styled("div")`
   align-items: center;
   height: 100%;
   justify-content: center;
-  color: #0f1419;
+  color: #1d9bf0;
   font-size: 0.7rem;
 `;
 
@@ -84,12 +90,12 @@ const ContactsHeaderRight = styled("div")`
   align-items: center;
   gap: 10px;
   font-size: 1.2rem;
-  color: #e3e3e3;
+  color: #1d9bf0;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
 
   &:hover {
-    color: #0f1419;
+    color: #fafafa;
   }
 `;
 

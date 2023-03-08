@@ -1,4 +1,4 @@
-const { Lead, User } = require("../../models");
+const { Lead, User, Note } = require("../../models");
 const { isEmpty } = require("lodash");
 
 // Create a new lead
@@ -22,7 +22,7 @@ exports.getLeads = async (req, res) => {
     });
 
     if (!leads) {
-      return res.status(404).json({ msg: "User not found." });
+      return res.status(404).send({ msg: "User not found." });
     }
 
     return res.send({ leads });
@@ -40,22 +40,25 @@ exports.getLeadById = async (req, res) => {
     })
       .populate({
         path: "tasks",
+        model: "Task",
         select: "_id title description dueDate completed createdAt",
         options: { sort: { dueDate: 1 } },
       })
       .populate({
         path: "contacts",
+        model: "Contact",
         select: "_id name email phone createdAt",
-        options: { sort: { createdAt: 1 } },
+        options: { sort: { createdAt: -1 } },
       })
       .populate({
         path: "notes",
-        select: "_id title content createdAt",
-        options: { sort: { createdAt: 1 } },
+        model: "Note",
+        select: "_id body createdAt",
+        options: { sort: { createdAt: -1 } },
       });
 
     if (!lead) {
-      return res.status(404).json({ msg: "Lead not found." });
+      return res.status(404).send({ msg: "Lead not found." });
     }
 
     res.send(lead);

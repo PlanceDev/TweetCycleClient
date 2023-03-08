@@ -65,40 +65,65 @@ export default function LeadStatus() {
 
   return (
     <>
-      <Show when={lead.status}>
-        <Select
-          defaultValue={lead.status?.toLocaleLowerCase()}
-          onChange={handleChangeStatus}
-        >
-          <SelectTrigger
-            borderRadius="3px"
-            backgroundColor="#fff"
-            _focus={{
-              shadow: "$none",
-              border: "1px solid #a3a3a3",
-            }}
-          >
-            <SelectPlaceholder>
-              {lead.status?.charAt(0).toUpperCase() + lead.status?.slice(1)}
-            </SelectPlaceholder>
-            <SelectValue />
-            <SelectIcon />
-          </SelectTrigger>
+      <SelectContainer>
+        <SelectHeader>
+          <h1>Lead Status</h1>
+        </SelectHeader>
 
-          <SelectContent>
-            <SelectListbox>
-              <For each={selectors}>
-                {(item) => (
-                  <SelectOption value={item?.toLowerCase()}>
-                    <SelectOptionText>{item}</SelectOptionText>
-                    <SelectOptionIndicator />
-                  </SelectOption>
-                )}
-              </For>
-            </SelectListbox>
-          </SelectContent>
-        </Select>
-      </Show>
+        <Show when={lead.status}>
+          <Select
+            defaultValue={lead.status?.toLocaleLowerCase()}
+            onChange={handleChangeStatus}
+          >
+            <SelectTrigger
+              borderRadius="3px"
+              backgroundColor="#fff"
+              _focus={{
+                shadow: "$none",
+                border: "1px solid #a3a3a3",
+              }}
+            >
+              <SelectPlaceholder>
+                {lead.status?.charAt(0).toUpperCase() + lead.status?.slice(1)}
+              </SelectPlaceholder>
+              <SelectValue />
+              <SelectIcon />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectListbox>
+                <For each={selectors}>
+                  {(item) => (
+                    <SelectOption value={item?.toLowerCase()}>
+                      <SelectOptionText>{item}</SelectOptionText>
+                      <SelectOptionIndicator />
+                    </SelectOption>
+                  )}
+                </For>
+              </SelectListbox>
+            </SelectContent>
+          </Select>
+        </Show>
+      </SelectContainer>
     </>
   );
 }
+
+const SelectContainer = styled("div")`
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+`;
+
+const SelectHeader = styled("div")`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background-color: #0f1419;
+  color: #fafafa;
+  border-radius: 5px 5px 0 0;
+`;

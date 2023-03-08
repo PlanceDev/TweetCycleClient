@@ -34,7 +34,8 @@ export default function EditTask({ setIsEditTask, task }) {
         withCredentials: true,
       })
       .then((res) => {
-        if (!res.status === 200) return toast.error(res.data.message);
+        if (!res.status === 200)
+          return toast.error("something went wrong, try again later");
 
         updateTask(res.data.task);
         setIsEditTask(false);

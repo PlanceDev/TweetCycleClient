@@ -319,6 +319,10 @@ const PromptButton = styled("button")`
     background-color: #fff;
     color: #1da1f2;
   }
+
+  &:focus {
+    outline: none;
+  }
 `;
 
 const PromptStyle = styled("div")`

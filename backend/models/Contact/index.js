@@ -13,6 +13,10 @@ const contactSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    lead: {
+      type: String,
+      ref: "Lead",
+    },
     name: {
       type: String,
       required: true,
@@ -45,13 +49,6 @@ const contactSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Create a partial index on the email field to ensure that each user
-// has a unique email address for their contacts (but not across all users)
-contactSchema.index(
-  { email: 1 },
-  { unique: true, partialFilterExpression: { creator: { $exists: true } } }
-);
-
 contactSchema.pre("save", async function (next) {
   if (!this.phone) return;
 
@@ -60,18 +57,64 @@ contactSchema.pre("save", async function (next) {
   next();
 });
 
-contactSchema.statics.createContact = async function (contactData) {
-  const contact = new this({
-    creator: contactData.creator,
-    name: contactData.name,
-    email: contactData.email,
-    phone: contactData.phone,
-    title: contactData.title,
-    company: contactData.company,
-  });
+contactSchema.statics.createContact = async function (contactData, creator) {
+  try {
+    if (!creator) {
+      const err = new Error("Creator is required");
+      err.status = 400;
+      throw err;
+    }
 
-  await contact.save();
-  return contact;
+    if (!contactData.name) {
+      const err = new Error("Contact is required");
+      err.status = 400;
+      throw err;
+    }
+
+    if (!contactData.lead) {
+      const err = new Error("Lead is required");
+      err.status = 400;
+      throw err;
+    }
+
+    const { Lead } = require("../Lead");
+
+    const lead = await Lead.findOne({ _id: contactData.lead, creator });
+
+    if (!lead) {
+      const err = new Error("Lead is not a valid lead");
+      err.status = 400;
+      throw err;
+    }
+
+    if (lead.creator !== creator) {
+      const err = new Error(
+        "You are not authorized to create a contact for this lead"
+      );
+      err.status = 400;
+      throw err;
+    }
+
+    const contact = await this.create({
+      creator: creator,
+      lead: contactData.lead,
+      name: contactData.name,
+      email: contactData.email,
+      phone: contactData.phone,
+      title: contactData.title,
+      company: contactData.company,
+    });
+
+    await contact.save();
+
+    lead.contacts.push(contact._id);
+    await lead.save();
+
+    return contact;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
 };
 
 exports.Contact = mongoose.model("Contact", contactSchema);

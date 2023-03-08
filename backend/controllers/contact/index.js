@@ -4,18 +4,13 @@ const { isEmpty } = require("lodash");
 // Create a new contact
 exports.createContact = async (req, res) => {
   try {
-    const contact = new Contact({
-      creator: req.user._id,
-      name: req.body.name,
-      email: req.body.email,
-      phone: req.body.phone,
-      title: req.body.title,
-      company: req.body.company,
-    });
+    const contact = await Contact.createContact(req.body, req.user._id);
 
-    await contact.save();
+    if (!contact) {
+      return res.status(400).send({ msg: "Contact not created." });
+    }
 
-    res.send(contact);
+    res.send({ contact });
   } catch (error) {
     return res.status(500).send(error.message);
   }

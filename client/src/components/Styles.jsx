@@ -19,6 +19,10 @@ export const ActionPill = styled("button")`
     background-color: #eee;
   }
 
+  &:focus {
+    outline: none;
+  }
+
   svg {
     height: 15px;
     width: 15px;

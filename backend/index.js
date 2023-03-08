@@ -20,7 +20,7 @@ const wss = setupWebSocketServer(server);
 
 const rateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 60, // limit each IP to 60 requests per windowMs
+  max: 60, // limit each IP to 60 requests per minute
 });
 
 app.use(
@@ -36,15 +36,14 @@ app.post(
   handleCompletedPayment
 );
 
-app.use(bodyParser.urlencoded({ extended: true })); // Required for mongoSanitize to work
-app.use(bodyParser.json({ limit: "50mb" })); // Required for mongoSanitize to work
+app.use(bodyParser.urlencoded({ extended: true })); // Must be placed above mongoSanitize for mongoSanitize to work
+app.use(bodyParser.json({ limit: "50mb" })); // Must be placed above mongoSanitize for mongoSanitize to work
 app.use(mongoSanitize({})); // Data sanitization against NoSQL query injection
 app.use(cookieParser());
 app.use(express.json());
-
 app.use("/api", rateLimiter, routes);
 
-// Point the server to the build folder of the React app
+// Point the server to the build folder of the app
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../client/build")));
 

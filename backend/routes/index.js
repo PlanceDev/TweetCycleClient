@@ -12,6 +12,7 @@ const checkoutRoutes = require("./checkout");
 const contactRoutes = require("./contact");
 const leadRoutes = require("./lead");
 const taskRoutes = require("./task");
+const noteRoutes = require("./note");
 
 // @route   /auth/*
 // @desc    Routes for authentication
@@ -62,5 +63,10 @@ router.use("/lead", protectedRoute, leadRoutes);
 // @desc    Routes for task
 // @access  Private
 router.use("/task", protectedRoute, taskRoutes);
+
+// @route   /note/*
+// @desc    Routes for note
+// @access  Private
+router.use("/note", protectedRoute, noteRoutes);
 
 module.exports = router;

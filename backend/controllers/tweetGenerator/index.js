@@ -25,32 +25,34 @@ exports.generateTweets = async (req, res) => {
     }
 
     const newPrompt = `Please give me a ${selectedStyle} 
-    tweet in the style of an expert in the field about ${prompt}. 
+    tweet in the style of an expert in the field about ${prompt}.
+    Given the style of the prompt think of the most influential person in the field that has a large cult following and mimick them.
     Be sure to make it as viral as possible.
     Be sure to make it seem like it is coming from the person you are in style of.
-    Be sure to make it seem as though a person would want to retweet it.
+    Be sure to make it seem as though a person reading would want to retweet it.
     Be sure to make it seem as though a human wrote it.
     Do not explicitly say that you are an expert in the field.
-    Do not include hashtags or the persons name who it is in style of. 
-    Only include the tweet body. Do not include hashtags. 
-    Do not include quote symbols. Do not include ${prompt}.
-    Do not include hashtags. Do not include quote symbols.
-    Make sure the tweet is less than 280 characters.
-    Do NOT under any circumstance include words starting with "#"`;
+    Do not include the persons name who it is in style of. 
+    Only include the tweet body.
+    Do not include quotes. Do not include ${prompt}.
+    Make sure the tweet is less than 280 characters.`;
 
     const promises = Array(6)
       .fill()
       .map(async () => {
-        const completion = await openai.createCompletion({
-          model: "text-davinci-003",
-          prompt: newPrompt + "\n",
-          temperature: 0.7,
-          max_tokens: 256,
-          top_p: 1,
-          frequency_penalty: 0,
-          presence_penalty: 0,
+        const completion = await openai.createChatCompletion({
+          model: "gpt-3.5-turbo",
+          messages: [
+            {
+              role: "user",
+              content: newPrompt,
+            },
+          ],
         });
-        return completion.data.choices[0].text.replace(/\n/g, "");
+
+        return completion.data.choices[0].message.content
+          .replace(/\n/g, "")
+          .replace(/"/g, "");
       });
 
     const results = await Promise.all(promises);
@@ -85,19 +87,21 @@ exports.improveTweet = async (req, res) => {
 
     const prompt = req.body.body;
 
-    const newPrompt = `Please improve this tweet: ${prompt}`;
+    const newPrompt = `Please improve this tweet and keep it under 280 characters: ${prompt}`;
 
-    const completion = await openai.createCompletion({
-      model: "text-davinci-003",
-      prompt: newPrompt + "\n",
-      temperature: 0.7,
-      max_tokens: 256,
-      top_p: 1,
-      frequency_penalty: 0,
-      presence_penalty: 0,
+    const completion = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "user",
+          content: newPrompt,
+        },
+      ],
     });
 
-    const result = completion.data.choices[0].text.replace(/\n/g, "");
+    const result = completion.data.choices[0].message.content
+      .replace(/\n/g, "")
+      .replace(/"/g, "");
 
     return res.send({ result });
   } catch (e) {
