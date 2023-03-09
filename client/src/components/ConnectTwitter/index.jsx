@@ -12,6 +12,7 @@ export default function ConnectTwitter() {
   const [user, { initializeUser }] = useUser();
 
   const handleTwitterLogin = () => {
+    console.log(twitterUrl());
     window.open(twitterUrl(), "_self");
   };
 
