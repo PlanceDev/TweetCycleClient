@@ -36,7 +36,7 @@ export default function Home() {
 
             <CallToAction>
               <p>
-                Start your <HighlightedText>14-day free trial</HighlightedText>.{" "}
+                Start your <HighlightedText>7-day free trial</HighlightedText>.{" "}
                 <br /> No Credit Card Required.
               </p>
               <TrialButton onClick={() => navigate("/auth/register")}>
@@ -176,7 +176,7 @@ export default function Home() {
 
         <PricingBodyLeftButton>
           <TrialButton onClick={() => navigate("/auth/register")}>
-            Start Your 14-day Free Trial
+            Start Your 7-day Free Trial
           </TrialButton>
         </PricingBodyLeftButton>
       </PricingContainer>

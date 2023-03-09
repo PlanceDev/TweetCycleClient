@@ -9,11 +9,6 @@ export function LeadProvider(props) {
     company: "",
     contacts: [],
     tasks: [],
-    location: "",
-    email: "",
-    phone: "",
-    website: "",
-    twitter: "",
     notes: "",
     createdAt: "",
     updatedAt: "",
@@ -64,6 +59,14 @@ export function LeadProvider(props) {
       // Contacts
       addContact(contact) {
         setLead("contacts", (contacts) => [contact, ...contacts]);
+      },
+
+      editContact(contact) {
+        setLead("contacts", (c) => c._id === contact._id, contact);
+      },
+
+      removeContact(id) {
+        setLead("contacts", (contacts) => contacts.filter((c) => c._id !== id));
       },
     },
   ];

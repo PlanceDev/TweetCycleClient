@@ -32,6 +32,7 @@ import Schedule from "./pages/Protected/Schedule";
 import Published from "./pages/Protected/Published";
 import Drafts from "./pages/Protected/Drafts";
 import TweetGenerator from "./pages/Protected/TweetGenerator";
+import ThreadGenerator from "./pages/Protected/ThreadGenerator";
 import TwitterRedirect from "./pages/Protected/TwitterRedirect";
 import Account from "./pages/Protected/Account";
 import Billing from "./pages/Protected/Account/Billing";
@@ -39,7 +40,7 @@ import CheckoutSuccess from "./pages/Protected/Account/Billing/CheckoutSuccess";
 import Leads from "./pages/Protected/Leads";
 import ViewLead from "./pages/Protected/Leads/ViewLead";
 import Contacts from "./pages/Protected/Contacts";
-import ViewContact from "./pages/Protected/Contacts/ViewContact";
+// import ViewContact from "./pages/Protected/Contacts/ViewContact";
 
 function App() {
   const navigate = useNavigate();
@@ -80,6 +81,15 @@ function App() {
         return Promise.reject(error);
       }
 
+      if (error.response.status === 402) {
+        navigate("/a/account/billing");
+
+        toast.error(
+          "Your subscription has expired. Please renew your subscription."
+        );
+        return Promise.reject(error);
+      }
+
       // TODO throw error instead. So we can properly handle errors in the .catch() block
       return error;
     }
@@ -109,12 +119,13 @@ function App() {
             <Route path="/drafts" element={<Drafts />} />
             <Route path="/published" element={<Published />} />
             <Route path="/tweet-generator" element={<TweetGenerator />} />
+            <Route path="/thread-generator" element={<ThreadGenerator />} />
 
             <Route path="/leads" element={<Leads />} />
             <Route path="/leads/:id" element={<ViewLead />} />
 
             <Route path="/contacts" element={<Contacts />} />
-            <Route path="/contacts/:id" element={<ViewContact />} />
+            {/* <Route path="/contacts/:id" element={<ViewContact />} /> */}
 
             <Route path="/twitter-redirect" element={<TwitterRedirect />} />
             <Route path="/account" element={<Account />} />

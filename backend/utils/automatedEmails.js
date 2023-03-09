@@ -6,8 +6,8 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false,
   auth: {
-    user: "paulbrooks@clientcycle.io",
-    pass: "bkwnpmhlhswcdaut",
+    user: "jeremy@tweetcycle.com",
+    pass: process.env.GMAIL_APP_PASSWORD,
   },
 });
 
@@ -17,7 +17,7 @@ exports.sendAccountVerificationEmail = async (firstName, email, token) => {
     const mailOptions = {
       from: {
         name: "Tweet Cycle Support",
-        address: "no-reply@clientcycle.io",
+        address: "jeremy@tweetcycle.com",
       },
       to: email,
       subject: `Tweet Cycle account verification`,
@@ -34,12 +34,13 @@ exports.sendAccountVerificationEmail = async (firstName, email, token) => {
   }
 };
 
+// Send password reset email to user when they request a password reset
 exports.sendResetPasswordEmail = async (email, token) => {
   try {
     const mailOptions = {
       from: {
         name: "Tweet Cycle Support",
-        address: "no-reply@clientcycle.io",
+        address: "jeremy@tweetcycle.com",
       },
       to: email,
       subject: "Reset your Tweet Cycle password",

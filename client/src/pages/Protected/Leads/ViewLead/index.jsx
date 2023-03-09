@@ -21,6 +21,7 @@ import {
 
 import axios from "axios";
 import { useLead } from "../../../../stores/leadStore";
+import { toast } from "solid-toast";
 import { SOLID_APP_API_SERVER, SOLID_APP_MODE } from "../../../../config";
 import LeadStatus from "../../../../components/LeadStatus";
 import Tasks from "../../../../components/Tasks";
@@ -30,12 +31,10 @@ import Notes from "../../../../components/Notes";
 export default function ViewLead() {
   const navigate = useNavigate();
   const [isEditLead, setIsEditLead] = createSignal(false);
-  const [lead, { initializeLead }] = useLead();
+  const [lead, { initializeLead, updateLead }] = useLead();
   const [leadDetails, setLeadDetails] = createSignal({
-    company: lead.company,
-    email: lead.email,
-    phone: lead.phone,
-    location: lead.location,
+    _id: lead.contacts[0]?._id,
+    company: lead.contacts[0]?.company || "",
   });
 
   const handleChangeLeadDetails = (e) => {
@@ -46,7 +45,32 @@ export default function ViewLead() {
   };
 
   const handleUpdateLead = () => {
-    console.log(leadDetails());
+    if (!leadDetails().company) {
+      return toast.error("Please enter a company name.");
+    }
+
+    let body = {
+      company: leadDetails().company,
+      type: "company",
+    };
+
+    axios
+      .put(`${SOLID_APP_API_SERVER}/lead/${lead._id}`, body, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (res.status !== 200) {
+          return toast.error("Error updating lead, please try again later.");
+        }
+
+        updateLead(res.data.lead);
+
+        toast.success("Lead updated successfully");
+        setIsEditLead(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   onMount(() => {
@@ -71,7 +95,21 @@ export default function ViewLead() {
         <LeadHeader>
           <LeadInfoContainer>
             <LeadInfoDiv>
-              <h1>{lead.company}</h1>
+              <Show when={!isEditLead()}>
+                <LeadName>
+                  <h1>{lead.company}</h1>
+                </LeadName>
+              </Show>
+
+              <Show when={isEditLead()}>
+                <EditLeadName
+                  type="text"
+                  placeholder={lead.company || "Company Name"}
+                  name="company"
+                  value={lead.company}
+                  onInput={handleChangeLeadDetails}
+                />
+              </Show>
             </LeadInfoDiv>
 
             <LeadInfoDiv>
@@ -81,26 +119,10 @@ export default function ViewLead() {
               </LeadInfoItem>
 
               <LeadInfoItem>
-                <FaSolidLocationDot />
-
-                <span>Los Angeles, CA</span>
-              </LeadInfoItem>
-
-              <LeadInfoItem>
-                <Show when={!isEditLead()}>
-                  <AiFillMail />
-                  <span>pythonkoder@gmail.com</span>
+                <Show when={lead.contacts[0]?.location}>
+                  <FaSolidLocationDot />
+                  <span>{lead.contacts[0]?.location}</span>
                 </Show>
-
-                <Show when={isEditLead()}>
-                  <AiFillMail />
-                  <EditInput type="text" placeholder={lead.email} />
-                </Show>
-              </LeadInfoItem>
-
-              <LeadInfoItem>
-                <AiFillPhone />
-                <span>832-609-7262</span>
               </LeadInfoItem>
             </LeadInfoDiv>
           </LeadInfoContainer>
@@ -118,7 +140,7 @@ export default function ViewLead() {
                 Cancel
               </ActionPill>
 
-              <ActionPill onClick={() => setIsEditLead(false)}>
+              <ActionPill onClick={() => handleUpdateLead()}>
                 <FaSolidCheck />
                 Save
               </ActionPill>
@@ -179,6 +201,28 @@ export const LeadHeader = styled("div")`
   }
 `;
 
+const LeadName = styled("div")`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  height: 50px;
+  transition: all 0.2s ease-in-out;
+`;
+
+const EditLeadName = styled("input")`
+  border: none;
+  border-bottom: 1px solid #ccc;
+  outline: none;
+  font-size: 0.9rem;
+  width: fit-content;
+  height: 50px;
+
+  &:focus {
+    border-bottom: 1px solid #000;
+  }
+`;
+
 const LeadInfoContainer = styled("div")`
   display: flex;
   flex-direction: column;
@@ -210,6 +254,8 @@ const LeadInfoItem = styled("div")`
   flex-direction: row;
   align-items: center;
   gap: 10px;
+
+  font-size: 0.8rem;
 `;
 
 const LeadBody = styled("div")`
@@ -231,6 +277,7 @@ const LeadBodyLeft = styled("div")`
   flex-direction: column;
   gap: 15px;
   height: fit-content;
+  /* background-color: aliceblue; */
 `;
 
 const LeadBodyRight = styled("div")`
@@ -247,6 +294,7 @@ const EditInput = styled("input")`
   border-bottom: 1px solid #ccc;
   outline: none;
   font-size: 0.9rem;
+  width: fit-content;
 
   &:focus {
     border-bottom: 1px solid #000;

@@ -5,15 +5,42 @@ import {
   FaSolidCircleXmark,
   FaSolidTrashCan,
 } from "solid-icons/fa";
+import { FiEdit3 } from "solid-icons/fi";
 import { AiFillPlusCircle } from "solid-icons/ai";
 import { Tooltip } from "@hope-ui/solid";
+import { toast } from "solid-toast";
+import axios from "axios";
 import { SOLID_APP_API_SERVER, SOLID_APP_MODE } from "../../config";
 import { useLead } from "../../stores/leadStore";
 import AddContact from "../Contacts/AddContact";
+import EditContact from "../Contacts/EditContact";
 
 export default function Contacts() {
-  const [lead, {}] = useLead();
+  const [lead, { removeContact }] = useLead();
   const [isAddContact, setIsAddContact] = createSignal(false);
+  const [isEditContact, setIsEditContact] = createSignal(false);
+  const [selectedContact, setSelectedContact] = createSignal(null);
+
+  const handleSelectContact = (id) => {
+    setSelectedContact(id);
+    setIsEditContact(true);
+  };
+
+  const handleRemoveContact = (_id) => {
+    axios
+      .delete(`${SOLID_APP_API_SERVER}/contact/${_id}`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (res.status !== 200)
+          return toast.error("Error deleting contact, please try again later.");
+
+        removeContact(_id);
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
+  };
 
   return (
     <ContactsContainer>
@@ -36,19 +63,58 @@ export default function Contacts() {
 
       <For each={lead.contacts}>
         {(contact) => (
-          <ContactContainer>
-            <ContactLeft>
-              <h1>{contact.name}</h1>
-              <span>{contact.title}</span>
-            </ContactLeft>
-          </ContactContainer>
+          <>
+            <Show when={isEditContact() && selectedContact() === contact._id}>
+              <EditContact
+                setIsEditContact={setIsEditContact}
+                contact={contact}
+              />
+            </Show>
+            <ContactContainer>
+              <ContactLeft>
+                <ContactLeftTop>
+                  <h1>{contact.name}</h1>
+                  <span>{contact.title}</span>
+                </ContactLeftTop>
+              </ContactLeft>
+
+              <ContactRight>
+                <Tooltip
+                  withArrow
+                  label="Edit Contact"
+                  placement="right"
+                  openDelay={500}
+                >
+                  <ContactAction
+                    onclick={() => handleSelectContact(contact._id)}
+                  >
+                    <FiEdit3 />
+                  </ContactAction>
+                </Tooltip>
+
+                <Show when={lead.contacts.length > 1}>
+                  <Tooltip
+                    withArrow
+                    label="Delete Contact"
+                    placement="right"
+                    openDelay={500}
+                  >
+                    <ContactAction
+                      onClick={() => handleRemoveContact(contact._id)}
+                    >
+                      <FaSolidTrashCan />
+                    </ContactAction>
+                  </Tooltip>
+                </Show>
+              </ContactRight>
+            </ContactContainer>
+          </>
         )}
       </For>
     </ContactsContainer>
   );
 }
 
-// Contacts
 const ContactsContainer = styled("div")`
   display: flex;
   flex-direction: column;
@@ -118,8 +184,9 @@ const ContactContainer = styled("div")`
 const ContactLeft = styled("div")`
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   align-items: flex-start;
+  gap: 10px;
 
   h1 {
     font-size: 0.9rem;
@@ -131,9 +198,35 @@ const ContactLeft = styled("div")`
   }
 `;
 
+const ContactLeftTop = styled("div")`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  h1 {
+    text-decoration: ${(props) => (props.completed ? "line-through" : "none")};
+  }
+`;
+
 const ContactRight = styled("div")`
   display: flex;
   flex-direction: row;
-  align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 5px;
+`;
+
+const ContactAction = styled("div")`
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  color: #a3a3a3;
+  border-radius: 50%;
+  padding: 5px;
+  font-size: 0.9rem;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+
+  &:hover {
+    color: #505050;
+  }
 `;

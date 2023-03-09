@@ -31,7 +31,7 @@ app.use(
 );
 
 app.post(
-  "/webhook",
+  "/stripe/webhook",
   express.raw({ type: "application/json" }),
   handleCompletedPayment
 );

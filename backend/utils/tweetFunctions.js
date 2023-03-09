@@ -24,6 +24,7 @@ const downloadAndUploadImages = async (T, attachments) => {
     )
   );
 
+  // Upload all images to Twitter media API
   const uploadPromises = downloads.map(async (download, index) => {
     const imageBuffer = download.Body;
     const imageType = download.ContentType;
@@ -33,7 +34,13 @@ const downloadAndUploadImages = async (T, attachments) => {
 
     await fs.promises.writeFile(imageLocation, imageBuffer);
 
-    const media = await T.v1.uploadMedia(imageLocation);
+    const media = await T.v1.uploadMedia(imageLocation).catch((err) => {
+      return fs.unlink(imageLocation, (err) => {
+        if (err) {
+          console.error(err);
+        }
+      });
+    });
 
     await fs.promises.unlink(imageLocation);
 
@@ -48,6 +55,7 @@ const downloadAndUploadImages = async (T, attachments) => {
   return photos;
 };
 
+// Create initial tweet that will be used to reply to and create thread
 const initialTweet = async (tweet, T) => {
   const photos = await downloadAndUploadImages(T, tweet.thread[0].attachments);
 
@@ -61,6 +69,7 @@ const initialTweet = async (tweet, T) => {
   return thread;
 };
 
+// Create thread of tweets
 const handleTweet = async (tweet, T) => {
   let thread = await initialTweet(tweet, T);
 

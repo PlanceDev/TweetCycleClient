@@ -33,9 +33,6 @@ const PageContainer = styled("div")`
   display: flex;
   flex-direction: column;
   font-family: "Poppins", sans-serif;
-  /* gap: 10px; */
-  /* height: 90vh; */
-  /* background-color: #f6f9f9; */
 
   @media screen and (min-width: 768px) {
     flex-direction: row;
@@ -47,6 +44,7 @@ const PageRight = styled("div")`
   display: flex;
   flex-direction: column;
   flex: 1;
+  margin-bottom: 20px !important;
 `;
 
 // Mobile Nav hidden on desktop

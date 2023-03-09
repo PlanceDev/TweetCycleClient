@@ -71,7 +71,6 @@ export default function Leads() {
                   <TableHeader>Contact</TableHeader>
                   <TableHeader>Email</TableHeader>
                   <TableHeader>Phone</TableHeader>
-                  <TableHeader>Twitter</TableHeader>
                   <TableHeader>Status</TableHeader>
                 </TableRow>
               </TableHead>
@@ -84,7 +83,7 @@ export default function Leads() {
                       {lead.company.length > 15 && "..."}
                     </CompanyTableData>
 
-                    <TableData>{lead.contacts[0].name}</TableData>
+                    <TableData>{lead.contacts[0]?.name}</TableData>
 
                     <Tooltip
                       withArrow
@@ -95,7 +94,6 @@ export default function Leads() {
                     >
                       <IconTableData disabled={!lead.email}>
                         <AiFillMail />
-                        {/* {lead.email} */}
                       </IconTableData>
                     </Tooltip>
 
@@ -107,12 +105,10 @@ export default function Leads() {
                       openDelay={500}
                     >
                       <IconTableData disabled={!lead.phone}>
-                        {/* {lead.phone} */}
                         <AiFillPhone />
                       </IconTableData>
                     </Tooltip>
 
-                    <TableData>@{lead.twitter.split("/").pop()}</TableData>
                     <TableData>
                       {lead.status.charAt(0).toUpperCase() +
                         lead.status.slice(1)}

@@ -19,6 +19,7 @@ import { BsClockHistory, BsGearFill, BsTwitter } from "solid-icons/bs";
 import { BsFileEarmarkTextFill } from "solid-icons/bs";
 import { FaSolidClipboardCheck } from "solid-icons/fa";
 import { BiSolidBusiness } from "solid-icons/bi";
+import { AiOutlineOrderedList } from "solid-icons/ai";
 import { FaSolidRepeat, FaRegularCalendarDays } from "solid-icons/fa";
 import { IoLogOutSharp } from "solid-icons/io";
 import { BiRegularLogOutCircle } from "solid-icons/bi";
@@ -112,6 +113,18 @@ export default function Sidebar() {
 
               <Show when={navOpen()}>
                 <LinkText>Tweet Generator</LinkText>
+              </Show>
+            </LinkWrapper>
+          </A>
+
+          <A href={"/a/thread-generator"}>
+            <LinkWrapper>
+              <LinkIcon>
+                <AiOutlineOrderedList />
+              </LinkIcon>
+
+              <Show when={navOpen()}>
+                <LinkText>Thread Generator</LinkText>
               </Show>
             </LinkWrapper>
           </A>

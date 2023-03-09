@@ -103,7 +103,7 @@ export const ScheduleBody = styled("div")`
   height: 100%;
   gap: 15px;
   /* padding: 15px; */
-  margin-bottom: 10% !important;
+  margin-bottom: 150px;
 `;
 
 export const ScheduledTweet = styled("div")`
@@ -128,7 +128,7 @@ export const ScheduledTweet = styled("div")`
 
 export const TweetDay = styled("span")`
   font-weight: 600;
-  font-size: 1.2rem;
+  font-size: 1rem;
 `;
 
 export const TweetTime = styled("div")`
@@ -138,9 +138,19 @@ export const TweetTime = styled("div")`
   border-radius: 5px;
   width: 100px;
   padding: 5px;
-  background-color: #1da1f2;
-  color: white;
+  background-color: #0f1419;
+  color: #fafafa;
   font-weight: bold;
+
+  span {
+    color: #1d9bf0;
+  }
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    justify-content: center;
+    gap: 10px;
+  }
 `;
 
 export const TweetIsThread = styled("div")`
@@ -154,18 +164,30 @@ export const TweetIsThread = styled("div")`
 
 export const TweetPreview = styled("div")`
   display: flex;
+
   align-items: flex-start;
   justify-content: flex-start;
   border-radius: 5px;
   padding: 5px;
   width: 75%;
   gap: 10px;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    flex-direction: column;
+  }
 `;
 
 export const EditDeleteContainer = styled("div")`
   display: flex;
   align-items: center;
   gap: 10px;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    align-items: flex-end;
+    justify-content: flex-end;
+  }
 `;
 
 export const EditIcon = styled("div")`

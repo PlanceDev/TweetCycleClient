@@ -25,22 +25,6 @@ const leadSchema = new mongoose.Schema(
         ref: "Contact",
       },
     ],
-    email: {
-      type: String,
-      trim: true,
-    },
-    twitter: {
-      type: String,
-      trim: true,
-    },
-    phone: {
-      type: String,
-      trim: true,
-    },
-    location: {
-      type: String,
-      trim: true,
-    },
     tasks: [
       {
         type: String,
@@ -69,11 +53,6 @@ const leadSchema = new mongoose.Schema(
       ],
       default: "new",
     },
-    notes: [
-      {
-        type: String,
-      },
-    ],
     createdAt: {
       type: Date,
       default: Date.now,
@@ -134,11 +113,14 @@ leadSchema.statics.createLead = async function (lead, creator) {
     const contact = new Contact({
       lead: lead_id,
       creator,
+      company: lead.company,
       name: lead.contact,
+      title: lead.title,
       email: lead.email,
       phone: lead.phone,
-      title: lead.title,
-      company: lead.company,
+      twitter: lead.twitter,
+      url: lead.url,
+      location: lead.location,
     });
 
     await contact.save();
@@ -149,9 +131,6 @@ leadSchema.statics.createLead = async function (lead, creator) {
       creator,
       company: lead.company,
       contacts: [contact._id],
-      email: lead.email,
-      twitter: lead.twitter,
-      phone: lead.phone,
     });
 
     // If there is a note, create a note and add it to the lead
@@ -173,7 +152,6 @@ leadSchema.statics.createLead = async function (lead, creator) {
 
     return this.findOne({ creator, _id: newLead._id }).populate({
       path: "contacts",
-      select: "_id name email phone createdAt",
       options: { sort: { createdAt: 1 } },
     });
   } catch (err) {
@@ -221,19 +199,16 @@ leadSchema.statics.updateLeadStatus = async function (id, status, creator) {
       .populate({
         path: "tasks",
         model: "Task",
-        select: "_id title description dueDate completed createdAt",
         options: { sort: { dueDate: 1 } },
       })
       .populate({
         path: "contacts",
         model: "Contact",
-        select: "_id name email phone createdAt",
         options: { sort: { createdAt: -1 } },
       })
       .populate({
         path: "notes",
         model: "Note",
-        select: "_id body createdAt",
         options: { sort: { createdAt: -1 } },
       });
 

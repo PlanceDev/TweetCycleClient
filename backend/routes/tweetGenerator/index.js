@@ -12,4 +12,9 @@ router.post("/", tweetGeneratorController.generateTweets);
 // @access  Private
 router.post("/improve", tweetGeneratorController.improveTweet);
 
+// @route   POST /api/tweet-generator/thread
+// @desc    Generates a thread
+// @access  Private
+router.post("/thread", tweetGeneratorController.generateThread);
+
 module.exports = router;

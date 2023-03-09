@@ -118,22 +118,16 @@ export default function Schedule() {
               <>
                 <Show when={days()[i] !== days()[i - 1]}>
                   <TweetDay>
-                    <Show
-                      when={
-                        moment(st.publishDate).format("dddd") ===
-                        moment(new Date()).format("dddd")
-                      }
-                      fallback={moment(st.publishDate).format("dddd")}
-                    >
-                      Today
-                    </Show>{" "}
-                    | {moment(st.publishDate).format("MMMM DD")}
+                    {moment(st.publishDate).format("dddd")} |{" "}
+                    {moment(st.publishDate).format("MMMM DD")}
                   </TweetDay>
                 </Show>
 
                 <ScheduledTweet>
                   <TweetTime>
-                    <AiFillClockCircle />
+                    <span>
+                      <AiFillClockCircle />
+                    </span>
                     {moment(st.publishDate).format("h:mm a").toUpperCase()}
                   </TweetTime>
 

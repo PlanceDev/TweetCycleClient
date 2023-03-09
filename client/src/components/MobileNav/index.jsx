@@ -2,15 +2,35 @@ import { styled } from "solid-styled-components";
 import { createEffect, createSignal, Show, onMount } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { AiOutlineMenu } from "solid-icons/ai";
+import axios from "axios";
+import { useUser } from "../../stores/userStore";
+import { SOLID_APP_API_SERVER } from "../../config";
 
 export default function MobileNavbar() {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = createSignal(true);
   const [links, setLinks] = createSignal({});
   const [open, setOpen] = createSignal(false);
+  const [user, { logoutUser }] = useUser();
 
   const handleToggle = () => {
     setOpen(!open());
+  };
+
+  const handleLinkClick = (link) => {
+    setOpen(false);
+    navigate(link);
+  };
+
+  const handleLogout = () => {
+    axios
+      .get(`${SOLID_APP_API_SERVER}/auth/logout`, {
+        withCredentials: true,
+      })
+      .finally(() => {
+        logoutUser();
+        navigate("/auth/login");
+      });
   };
 
   onMount(() => {
@@ -35,11 +55,29 @@ export default function MobileNavbar() {
       <Show when={open()}>
         <NavRight>
           <LinksDiv>
-            <NavItem onClick={handleToggle}>Schedule</NavItem>
-            <NavItem onClick={handleToggle}>Tweet Generator</NavItem>
-            <NavItem onClick={handleToggle}>Contacts</NavItem>
-            <NavItem onClick={handleToggle}>Account</NavItem>
-            <NavItem onClick={handleToggle}>Logout</NavItem>
+            <NavItem onClick={() => handleLinkClick("/a/schedule")}>
+              Schedule
+            </NavItem>
+
+            <NavItem onClick={() => handleLinkClick("/a/tweet-generator")}>
+              Tweet Generator
+            </NavItem>
+
+            <NavItem onClick={() => handleLinkClick("/a/thread-generator")}>
+              Thread Generator
+            </NavItem>
+
+            <NavItem onClick={() => handleLinkClick("/a/leads")}>Leads</NavItem>
+
+            <NavItem onClick={() => handleLinkClick("/a/contacts")}>
+              Contacts
+            </NavItem>
+
+            <NavItem onClick={() => handleLinkClick("/a/account")}>
+              Account
+            </NavItem>
+
+            <NavItem onClick={() => handleLogout()}>Logout</NavItem>
           </LinksDiv>
         </NavRight>
       </Show>

@@ -5,6 +5,7 @@ const { isEmpty } = require("lodash");
 exports.createLead = async (req, res) => {
   try {
     const lead = await Lead.createLead(req.body, req.user._id);
+
     res.send({ lead });
   } catch (error) {
     console.log(error);
@@ -17,7 +18,7 @@ exports.getLeads = async (req, res) => {
   try {
     const leads = await Lead.find({ creator: req.user._id }).populate({
       path: "contacts",
-      select: "_id name email phone createdAt",
+      select: "_id company name email phone twitter createdAt",
       options: { sort: { createdAt: 1 } },
     });
 
@@ -41,19 +42,16 @@ exports.getLeadById = async (req, res) => {
       .populate({
         path: "tasks",
         model: "Task",
-        select: "_id title description dueDate completed createdAt",
         options: { sort: { dueDate: 1 } },
       })
       .populate({
         path: "contacts",
         model: "Contact",
-        select: "_id name email phone createdAt",
         options: { sort: { createdAt: -1 } },
       })
       .populate({
         path: "notes",
         model: "Note",
-        select: "_id body createdAt",
         options: { sort: { createdAt: -1 } },
       });
 
@@ -78,6 +76,16 @@ exports.updateLead = async (req, res) => {
         lead = await Lead.updateLeadStatus(
           req.params.id,
           req.body.status,
+          req.user._id
+        );
+
+        res.send({ lead });
+        break;
+
+      case "company":
+        lead = await Lead.updateLeadCompany(
+          req.params.id,
+          req.body.company,
           req.user._id
         );
 

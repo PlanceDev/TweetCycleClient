@@ -51,6 +51,7 @@ exports.login = async (req, res) => {
         twitterUsername: user.twitterUsername || null,
         plan: subscription.plan,
         status: subscription.status,
+        currentPeriodEnd: subscription.currentPeriodEnd,
       },
       process.env.ACCESS_TOKEN_SECRET,
       {
@@ -145,6 +146,7 @@ exports.refreshToken = async (req, res) => {
             twitterUsername: user.twitterUsername || null,
             plan: subscription.plan,
             status: subscription.status,
+            currentPeriodEnd: subscription.currentPeriodEnd,
           },
           process.env.ACCESS_TOKEN_SECRET,
           {

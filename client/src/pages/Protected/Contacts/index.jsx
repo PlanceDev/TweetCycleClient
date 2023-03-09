@@ -1,7 +1,15 @@
 import { styled } from "solid-styled-components";
 import { useNavigate, A } from "@solidjs/router";
-import { createEffect, createSignal, Show, onMount } from "solid-js";
+import axios from "axios";
+import { createEffect, createSignal, onMount, Show } from "solid-js";
+import { BsCalendar2CheckFill } from "solid-icons/bs";
 import { IoPersonAddSharp } from "solid-icons/io";
+import { IoLogoTwitter } from "solid-icons/io";
+import { BsGlobe } from "solid-icons/bs";
+import { AiFillPhone } from "solid-icons/ai";
+import { AiFillMail } from "solid-icons/ai";
+import { FaSolidCircleInfo } from "solid-icons/fa";
+import { Tooltip } from "@hope-ui/solid";
 import { useManageDrawer } from "../../../stores/manageDrawerStore";
 import { useContacts } from "../../../stores/contactsStore";
 import ManageDrawer from "../../../components/ManageDrawer";
@@ -10,42 +18,7 @@ import {
   ScheduleHeader,
   ActionPillsDiv,
 } from "../../../components/Styles";
-
-const contactsList = [
-  {
-    _id: 1,
-    name: "John Doe",
-    email: "pauljeremybrooks@bellsouth.com",
-    phone: "123-456-7890",
-    twitter: "@johndoe",
-    twitterFollowers: 1000,
-    twitterVerified: true,
-    twitterProfileImage: "https://placekitten.com/200/300",
-    status: "active",
-  },
-  {
-    _id: 2,
-    name: "Jacob Sercozydsdfsdfsdfsdfsdfsdf",
-    email: "me@me.com",
-    phone: "123-456-7890",
-    twitter: "@janedoe",
-    twitterFollowers: 1000,
-    twitterVerified: true,
-    twitterProfileImage: "https://placekitten.com/200/300",
-    status: "active",
-  },
-  {
-    _id: 3,
-    name: "Paul Brooks",
-    email: "me@me.com",
-    phone: "123-456-7890",
-    twitter: "@janedoe",
-    twitterFollowers: 1000,
-    twitterVerified: true,
-    twitterProfileImage: "https://placekitten.com/200/300",
-    status: "active",
-  },
-];
+import { SOLID_APP_API_SERVER } from "../../../config";
 
 export default function Contacts() {
   const navigate = useNavigate();
@@ -62,67 +35,135 @@ export default function Contacts() {
   };
 
   const handleViewContact = (selectedContact) => {
-    navigate(`/a/contacts/${selectedContact._id}`);
+    navigate(`/a/leads/${selectedContact.lead}`);
   };
 
   onMount(() => {
-    initializeContacts(contactsList);
+    axios
+      .get(`${SOLID_APP_API_SERVER}/contact`, { withCredentials: true })
+      .then((res) => {
+        initializeContacts(res.data.contacts);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   });
 
   return (
     <>
       <ManageDrawer />
 
-      <LeadsContainer>
+      <ContactsContainer>
         <ScheduleHeader>
           <span>Contacts</span>
 
-          <ActionPillsDiv>
+          {/* <ActionPillsDiv>
             <ActionPill onClick={() => handleAddContact()}>
               <IoPersonAddSharp />
               Add Contact
             </ActionPill>
-          </ActionPillsDiv>
+          </ActionPillsDiv> */}
         </ScheduleHeader>
 
-        <LeadsBody>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeader>Name</TableHeader>
-                <TableHeader>Email</TableHeader>
-                <TableHeader>Phone</TableHeader>
-                <TableHeader>Twitter</TableHeader>
-                <TableHeader>Status</TableHeader>
-              </TableRow>
-            </TableHead>
+        <ContactsBody>
+          <ContactInformation>
+            <FaSolidCircleInfo />
+            <p>
+              You can create a new contact by creating a new lead or adding more
+              contacts to and already exisiting lead.
+            </p>
+          </ContactInformation>
 
-            <TableBody>
-              {contacts.map((contact) => (
-                <LeadTableRow onClick={() => handleViewContact(contact)}>
-                  <TableData>
-                    {contact.name.slice(0, 15)}
-                    {contact.name.length > 15 && "..."}
-                  </TableData>
-                  <TableData>{contact.email}</TableData>
-                  <TableData>{contact.phone}</TableData>
-                  <TableData>{contact.twitter}</TableData>
-                  <TableData>{contact.status}</TableData>
-                </LeadTableRow>
-              ))}
-            </TableBody>
+          <Show when={contacts.length}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableHeader>Lead</TableHeader>
+                  <TableHeader>Name</TableHeader>
+                  <TableHeader>Title</TableHeader>
+                  <TableHeader>Email</TableHeader>
+                  <TableHeader>Phone</TableHeader>
+                  <TableHeader>Twitter</TableHeader>
+                  <TableHeader>URL</TableHeader>
+                </TableRow>
+              </TableHead>
 
-            <Show when={!contacts.length}>
-              <div>No leads found</div>
-            </Show>
-          </Table>
-        </LeadsBody>
-      </LeadsContainer>
+              <TableBody>
+                {contacts.map((contact) => (
+                  <ContactTableRow>
+                    <CompanyTableData
+                      onClick={() => handleViewContact(contact)}
+                    >
+                      {contact.company.slice(0, 15)}
+                      {contact.company.length > 15 && "..."}
+                    </CompanyTableData>
+
+                    <TableData>{contact.name}</TableData>
+                    <TableData>{contact.title}</TableData>
+
+                    <Tooltip
+                      withArrow
+                      label={contact.email}
+                      placement="top"
+                      disabled={!contact.email}
+                      openDelay={500}
+                    >
+                      <IconTableData disabled={!contact.email}>
+                        <AiFillMail />
+                      </IconTableData>
+                    </Tooltip>
+
+                    <Tooltip
+                      withArrow
+                      label={contact.phone}
+                      placement="top"
+                      disabled={!contact.phone}
+                      openDelay={500}
+                    >
+                      <IconTableData disabled={!contact.phone}>
+                        <AiFillPhone />
+                      </IconTableData>
+                    </Tooltip>
+
+                    <Tooltip
+                      withArrow
+                      label={contact.twitter}
+                      placement="top"
+                      disabled={!contact.twitter}
+                      openDelay={500}
+                    >
+                      <IconTableData disabled={!contact.twitter}>
+                        <IoLogoTwitter />
+                      </IconTableData>
+                    </Tooltip>
+
+                    <Tooltip
+                      withArrow
+                      label={contact.twitter}
+                      placement="top"
+                      disabled={!contact.twitter}
+                      openDelay={500}
+                    >
+                      <IconTableData disabled={!contact.twitter}>
+                        <BsGlobe />
+                      </IconTableData>
+                    </Tooltip>
+                  </ContactTableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Show>
+
+          <Show when={!contacts.length}>
+            <div>No contacts found</div>
+          </Show>
+        </ContactsBody>
+      </ContactsContainer>
     </>
   );
 }
 
-const LeadsContainer = styled("div")`
+const ContactsContainer = styled("div")`
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -131,7 +172,7 @@ const LeadsContainer = styled("div")`
   font-family: "Poppins", sans-serif;
 `;
 
-const LeadsBody = styled("div")`
+const ContactsBody = styled("div")`
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -145,6 +186,18 @@ const LeadsBody = styled("div")`
   table tbody tr td {
     padding: 10px;
     border-bottom: 1px solid #ddd;
+  }
+`;
+
+const ContactInformation = styled("div")`
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: #8d8d8d;
+
+  p {
+    font-size: 12px;
+    text-align: left;
   }
 `;
 
@@ -162,11 +215,14 @@ const Table = styled("table")`
   border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  /* border-radius: 7px 7px 0 0; */
 `;
 
 const TableHead = styled("thead")`
   padding: 10px;
   border-bottom: 1px solid #ddd;
+  background-color: #0f1419;
+  color: #fafafa;
 `;
 
 const TableRow = styled("tr")`
@@ -174,44 +230,63 @@ const TableRow = styled("tr")`
   border-bottom: 1px solid #ddd;
 `;
 
-const LeadTableRow = styled("tr")`
+const ContactTableRow = styled("tr")`
   padding: 10px;
   border-bottom: 1px solid #ddd;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #f5f5f5;
-  }
 `;
 
 const TableBody = styled("tbody")`
   padding: 10px;
   border-bottom: 1px solid #ddd;
-`;
-
-const TableData = styled("td")`
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  max-width: 200px;
-  overflow: hidden;
-`;
-
-const TableDataDiv = styled("div")`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-
-  img {
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-  }
+  font-weight: 500;
 `;
 
 const TableHeader = styled("th")`
   padding: 10px;
   border-bottom: 1px solid #ddd;
+`;
+
+const CompanyTableData = styled("td")`
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  max-width: 100px;
+  cursor: pointer;
+  text-decoration: underline;
+
+  &:hover {
+    color: #1d9bf0;
+  }
+`;
+
+const TableData = styled("td")`
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  max-width: 100px;
+`;
+
+const IconTableData = styled("td")`
+  display: table-cell;
+  border-bottom: 1px solid #ddd;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  width: 30px;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+
+  color: ${(props) => (props.disabled ? "#ccc" : "#333")};
+
+  svg {
+    width: 100%;
+  }
+
+  &:hover {
+    color: ${(props) => (props.disabled ? "#ccc" : "#1d9bf0")};
+    z-index: 10;
+  }
 `;
 
 const PageHeader = styled("div")`
@@ -220,7 +295,7 @@ const PageHeader = styled("div")`
   margin-bottom: 10px;
 `;
 
-const LeadCardTitle = styled("div")`
+const ContactCardTitle = styled("div")`
   display: flex;
   flex-direction: row;
   align-items: space-between;
@@ -229,7 +304,7 @@ const LeadCardTitle = styled("div")`
   font-weight: 600;
 `;
 
-const LeadCard = styled("div")`
+const ContactCard = styled("div")`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -242,100 +317,100 @@ const LeadCard = styled("div")`
   border: 1px solid #eee;
 `;
 
-const LeadCardLeft = styled("div")`
+const ContactCardLeft = styled("div")`
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 10px;
 `;
 
-const LeadCardCenter = styled("div")`
+const ContactCardCenter = styled("div")`
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 10px;
 `;
 
-const LeadCardRight = styled("div")`
+const ContactCardRight = styled("div")`
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 10px;
 `;
 
-const LeadCardImage = styled("img")`
+const ContactCardImage = styled("img")`
   width: 25px;
   height: 25px;
   border-radius: 50%;
 `;
 
-const LeadCardName = styled("div")`
+const ContactCardName = styled("div")`
   font-size: 1rem;
   font-weight: 600;
 `;
 
-const LeadCardEmail = styled("div")`
+const ContactCardEmail = styled("div")`
   font-size: 1rem;
   font-weight: 400;
   color: #666;
 `;
 
-const LeadCardPhone = styled("div")`
+const ContactCardPhone = styled("div")`
   font-size: 1rem;
   font-weight: 400;
   color: #666;
 `;
 
-const LeadCardTwitter = styled("div")`
+const ContactCardTwitter = styled("div")`
   font-size: 1rem;
   font-weight: 400;
   color: #666;
 `;
 
-const LeadCardTwitterFollowers = styled("div")`
+const ContactCardTwitterFollowers = styled("div")`
   font-size: 1rem;
   font-weight: 400;
   color: #666;
 `;
 
-const LeadCardTwitterVerified = styled("div")`
+const ContactCardTwitterVerified = styled("div")`
   font-size: 1rem;
   font-weight: 400;
   color: #666;
 `;
 
-const LeadCardTwitterProfileImage = styled("div")`
+const ContactCardTwitterProfileImage = styled("div")`
   font-size: 1rem;
   font-weight: 400;
   color: #666;
 `;
 
-const LeadCardDate = styled("div")`
+const ContactCardDate = styled("div")`
   font-size: 1rem;
   font-weight: 400;
   color: #666;
 `;
 
-const LeadCardTime = styled("div")`
+const ContactCardTime = styled("div")`
   font-size: 1rem;
   font-weight: 400;
   color: #666;
 `;
 
-const LeadCardStatus = styled("div")`
+const ContactCardStatus = styled("div")`
   font-size: 1rem;
   font-weight: 400;
   color: #666;
 `;
 
-const LeadCardActions = styled("div")`
+const ContactCardActions = styled("div")`
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 10px;
 `;
 
-const LeadCardAction = styled("div")`
+const ContactCardAction = styled("div")`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -352,12 +427,12 @@ const LeadCardAction = styled("div")`
   }
 `;
 
-const LeadCardActionIcon = styled("div")`
+const ContactCardActionIcon = styled("div")`
   font-size: 1.2rem;
   color: #666;
 `;
 
-const LeadCardActionText = styled("div")`
+const ContactCardActionText = styled("div")`
   font-size: 1rem;
   font-weight: 400;
   color: #666;

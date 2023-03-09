@@ -9,6 +9,17 @@ exports.getCheckoutSession = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
 
+    // check if user has an existing stripe subscription and cancel it
+    if (user.stripeSubscriptionId) {
+      const deleted = await stripe.subscriptions.del(user.stripeSubscriptionId);
+
+      if (!deleted) {
+        return res
+          .status(404)
+          .json({ error: "Error while cancelling subscription." });
+      }
+    }
+
     const session = await stripe.checkout.sessions.create({
       customer: user.stripeCustomerId,
       payment_method_types: ["card"],

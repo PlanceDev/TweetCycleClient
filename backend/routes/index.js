@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { protectedRoute } = require("../middleware");
+const { payWall } = require("../middleware");
 
 const authRoutes = require("./auth");
 const twitterAuthRoutes = require("./twitterAuth");
@@ -27,12 +28,12 @@ router.use("/twitter", protectedRoute, twitterAuthRoutes);
 // @route   /tweet/*
 // @desc    Routes for tweets
 // @access  Private
-router.use("/tweet", protectedRoute, tweetRoutes);
+router.use("/tweet", protectedRoute, payWall, tweetRoutes);
 
 // @route   /tweet-generator/*
 // @desc    Routes for tweet generator
 // @access  Private
-router.use("/tweet-generator", protectedRoute, tweetGeneratorRoutes);
+router.use("/tweet-generator", protectedRoute, payWall, tweetGeneratorRoutes);
 
 // @route   /user/*
 // @desc    Routes for user
@@ -52,21 +53,21 @@ router.use("/checkout", protectedRoute, checkoutRoutes);
 // @route   /contact/*
 // @desc    Routes for contact
 // @access  Private
-router.use("/contact", protectedRoute, contactRoutes);
+router.use("/contact", protectedRoute, payWall, contactRoutes);
 
 // @route   /lead/*
 // @desc    Routes for lead
 // @access  Private
-router.use("/lead", protectedRoute, leadRoutes);
+router.use("/lead", protectedRoute, payWall, leadRoutes);
 
 // @route   /task/*
 // @desc    Routes for task
 // @access  Private
-router.use("/task", protectedRoute, taskRoutes);
+router.use("/task", protectedRoute, payWall, taskRoutes);
 
 // @route   /note/*
 // @desc    Routes for note
 // @access  Private
-router.use("/note", protectedRoute, noteRoutes);
+router.use("/note", protectedRoute, payWall, noteRoutes);
 
 module.exports = router;

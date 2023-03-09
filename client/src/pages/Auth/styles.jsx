@@ -82,6 +82,10 @@ export const AuthNameDiv = styled("div")`
   flex-direction: row;
   justify-content: space-between;
   gap: 10px;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 export const AuthNameInput = styled("input")`

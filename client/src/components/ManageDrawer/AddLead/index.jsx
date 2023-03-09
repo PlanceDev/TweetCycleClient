@@ -26,9 +26,12 @@ export default function AddLead() {
   const [lead, setLead] = createSignal({
     company: "",
     contact: "",
+    title: "",
     email: "",
-    twitter: "",
     phone: "",
+    twitter: "",
+    url: "",
+    location: "",
     note: "",
   });
 
@@ -82,12 +85,12 @@ export default function AddLead() {
         <TopDiv>
           <InputDiv>
             <label htmlFor="">
-              <span>Company *</span>
+              <span>Company (or lead Name)*</span>
             </label>
 
             <ManageDrawerInput
               type="text"
-              placeholder="Name"
+              placeholder="Company"
               name="company"
               value={lead().name}
               onChange={(e) => handleInputChange(e)}
@@ -97,12 +100,12 @@ export default function AddLead() {
 
           <InputDiv>
             <label htmlFor="">
-              <span>Contact *</span>
+              <span>Contact Name *</span>
             </label>
 
             <ManageDrawerInput
               type="text"
-              placeholder="Contact"
+              placeholder="Name"
               name="contact"
               value={lead().contact}
               onChange={(e) => handleInputChange(e)}
@@ -112,7 +115,22 @@ export default function AddLead() {
 
           <InputDiv>
             <label htmlFor="">
-              <span>Email</span>
+              <span>Contact Title</span>
+            </label>
+
+            <ManageDrawerInput
+              type="text"
+              placeholder="Title"
+              name="title"
+              value={lead().title}
+              onChange={(e) => handleInputChange(e)}
+              autoComplete="off"
+            />
+          </InputDiv>
+
+          <InputDiv>
+            <label htmlFor="">
+              <span>Contact Email</span>
             </label>
             <ManageDrawerInput
               type="text"
@@ -126,7 +144,22 @@ export default function AddLead() {
 
           <InputDiv>
             <label htmlFor="">
-              <span>Twitter</span>
+              <span>Contact Phone</span>
+            </label>
+
+            <ManageDrawerInput
+              type="text"
+              placeholder="Phone"
+              name="phone"
+              value={lead().phone}
+              onChange={(e) => handleInputChange(e)}
+              autoComplete="off"
+            />
+          </InputDiv>
+
+          <InputDiv>
+            <label htmlFor="">
+              <span>Contact Twitter</span>
             </label>
             <ManageDrawerInput
               type="text"
@@ -140,14 +173,27 @@ export default function AddLead() {
 
           <InputDiv>
             <label htmlFor="">
-              <span>Phone</span>
+              <span>Contact URL</span>
             </label>
-
             <ManageDrawerInput
               type="text"
-              placeholder="Phone"
-              name="phone"
-              value={lead().phone}
+              placeholder="URL"
+              name="url"
+              value={lead().url}
+              onChange={(e) => handleInputChange(e)}
+              autoComplete="off"
+            />
+          </InputDiv>
+
+          <InputDiv>
+            <label htmlFor="">
+              <span>Contact Location</span>
+            </label>
+            <ManageDrawerInput
+              type="text"
+              placeholder="Location"
+              name="location"
+              value={lead().location}
               onChange={(e) => handleInputChange(e)}
               autoComplete="off"
             />

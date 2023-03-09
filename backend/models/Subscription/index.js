@@ -33,7 +33,7 @@ const subscriptionSchema = new mongoose.Schema({
   currentPeriodEnd: {
     type: Date,
     required: true,
-    default: Date.now() + 14 * 24 * 60 * 60 * 1000,
+    default: Date.now() + 7 * 24 * 60 * 60 * 1000,
   },
   createdAt: {
     type: Date,

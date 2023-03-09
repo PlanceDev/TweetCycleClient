@@ -27,7 +27,7 @@ export default function TweetGenerator() {
   const [selectedStyles, setSelectedStyles] = createSignal([]);
   const [generatingTweets, setGeneratingTweets] = createSignal(false);
   const [prompt, setPrompt] = createSignal("");
-  const [generatedTweets, setGeneratedTweets] = createSignal([]);
+  const [generatedThread, setGeneratedThread] = createSignal([]);
 
   // Add or remove styles from the selectedStyles array
   const handleStyleChange = (event) => {
@@ -63,7 +63,7 @@ export default function TweetGenerator() {
 
     axios
       .post(
-        `${SOLID_APP_API_SERVER}/tweet-generator`,
+        `${SOLID_APP_API_SERVER}/tweet-generator/thread`,
         {
           prompt: prompt().trim(),
           selectedStyle: selectedStyles(),
@@ -72,11 +72,10 @@ export default function TweetGenerator() {
       )
       .then((res) => {
         if (res.status !== 200) {
-          return toast.error("Error generating tweets");
+          return toast.error("Error generating thread, please try again.");
         }
 
-        console.log(res.data);
-        setGeneratedTweets(res.data);
+        setGeneratedThread(res.data.thread);
       })
       .catch((err) => {
         console.log(err);
@@ -91,13 +90,7 @@ export default function TweetGenerator() {
     initializeTweet({
       id: Math.floor(Math.random() * 1000000),
       publishDate: new Date(),
-      thread: [
-        {
-          id: 0,
-          body,
-          attachments: [],
-        },
-      ],
+      thread: generatedThread(),
     });
     openRightDrawer();
   };
@@ -105,14 +98,16 @@ export default function TweetGenerator() {
   return (
     <GeneratorContainer>
       <GeneratorHeader>
-        <span>Tweet Generator</span>
+        <span>Thread Generator</span>
       </GeneratorHeader>
 
       <GeneratorBody>
         <PromptSection onSubmit={(e) => handleGenerateTweets(e)}>
           <PromptInputContainer>
             <PromptInput
-              placeholder={"Enter a topic you would like to tweet about..."}
+              placeholder={
+                "Enter a topic you would like to create threads about..."
+              }
               onChange={(e) => setPrompt(e.target.value)}
             />
 
@@ -147,7 +142,7 @@ export default function TweetGenerator() {
         <Show when={generatingTweets()}>
           <LoadingWrapper>
             <LoadingContainer>
-              <For each={Array(6)}>
+              <For each={Array(2)}>
                 {() => (
                   <>
                     <Stack spacing={1}>
@@ -166,58 +161,53 @@ export default function TweetGenerator() {
           </LoadingWrapper>
         </Show>
 
-        <Show when={!generatingTweets() && generatedTweets().length === 0}>
+        <Show when={!generatingTweets() && generatedThread().length === 0}>
           <NoTweetsWrapper>
             <NoTweetsContainer>
               <NoTweetsTitle>
-                Please enter a prompt about a topic you would like to generate
-                tweets for. You can select up to 3 conversation styles in which
-                the AI will tone the tweets.
+                Please enter a prompt about a topic you would like to generate a
+                thread for. You can select up to 3 conversation styles in which
+                the AI will tone the thread.
               </NoTweetsTitle>
             </NoTweetsContainer>
           </NoTweetsWrapper>
         </Show>
 
-        <Show when={!generatingTweets() && generatedTweets()}>
+        <Show when={!generatingTweets() && generatedThread().length}>
           <GeneratedTweetsWrapper>
             <GeneratedTweetsContainer>
-              <For each={generatedTweets()}>
-                {(generatedTweet) => (
-                  <>
-                    <GeneratedTweet>
-                      <TweetHeader>
-                        <TweetHeaderInfo>
-                          <UserAvatar>
-                            {user.profilePicture ? (
-                              <img
-                                src={user.profilePicture}
-                                alt="Profile Picture"
-                              />
-                            ) : (
-                              <AiOutlineUser />
-                            )}
-                          </UserAvatar>
-                          <Show when={user.twitterUsername}>
-                            <span>@{user.twitterUsername}</span>
+              <GeneratedThread>
+                {generatedThread().map((gThread) => (
+                  <GeneratedTweet>
+                    <TweetHeader>
+                      <TweetHeaderInfo>
+                        <UserAvatar>
+                          <Show when={user.profilePicture}>
+                            <img
+                              src={user.profilePicture}
+                              alt="Profile Picture"
+                            />
                           </Show>
-                        </TweetHeaderInfo>
-                      </TweetHeader>
 
-                      <TweetBody>{generatedTweet.body}</TweetBody>
+                          <Show when={!user.profilePicture}>
+                            <AiOutlineUser />
+                          </Show>
+                        </UserAvatar>
 
-                      <TweetFooter>
-                        <TweetFooterInfo>
-                          <TweetFooterButton
-                            onClick={() => handleEditTweet(generatedTweet.body)}
-                          >
-                            Edit & Tweet
-                          </TweetFooterButton>
-                        </TweetFooterInfo>
-                      </TweetFooter>
-                    </GeneratedTweet>
-                  </>
-                )}
-              </For>
+                        <Show when={user.twitterUsername}>
+                          <span>@{user.twitterUsername}</span>
+                        </Show>
+                      </TweetHeaderInfo>
+                    </TweetHeader>
+
+                    {gThread.body}
+                  </GeneratedTweet>
+                ))}
+
+                <TweetFooterButton onClick={() => handleEditTweet()}>
+                  Edit & Tweet
+                </TweetFooterButton>
+              </GeneratedThread>
             </GeneratedTweetsContainer>
           </GeneratedTweetsWrapper>
         </Show>
@@ -383,17 +373,9 @@ const LoadingWrapper = styled("div")`
   padding: 10px;
 `;
 
-const LoadingTitle = styled("span")`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  font-weight: 500;
-  color: #000;
-`;
-
 const LoadingContainer = styled("div")`
-  display: grid;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   grid-template-columns: repeat(3, 1fr);
@@ -418,17 +400,27 @@ const GeneratedTweetsWrapper = styled("div")`
 `;
 
 const GeneratedTweetsContainer = styled("div")`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 20px;
-  margin-bottom: 50px;
+`;
+
+const GeneratedThread = styled("div")`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.8rem !important;
+  width: 350px;
+  padding: 20px;
+  border: none;
+  border-left: 2px solid #1d9bf0;
 
   @media (max-width: 868px) {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    grid-template-columns: repeat(1, 1fr);
+    width: 100%;
   }
 `;
 
@@ -437,16 +429,10 @@ const GeneratedTweet = styled("div")`
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  border-radius: 5px;
-  font-size: 0.8rem !important;
   border: 1px solid #e3e3e3;
-  width: 250px;
+  padding: 10px;
+  gap: 10px;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
-
-  @media (max-width: 868px) {
-    width: 100%;
-  }
 `;
 
 const UserAvatar = styled("div")`
@@ -485,50 +471,6 @@ const TweetHeaderInfo = styled("div")`
   gap: 5px;
   padding: 10px;
   color: #000;
-`;
-
-const TweetBody = styled("div")`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem !important;
-  font-weight: 500;
-  color: #000;
-  margin-bottom: 0px;
-  flex: 60%;
-  padding: 10px;
-`;
-
-const TweetFooter = styled("div")`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  flex: 20%;
-  font-size: 0.8rem !important;
-  font-weight: 600;
-  color: #ccc;
-  border-top: 1px solid #e3e3e3;
-
-  @media (max-width: 868px) {
-    font-size: 0.9rem;
-  }
-`;
-
-const TweetFooterInfo = styled("div")`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 5px;
-  padding: 10px;
-
-  @media (max-width: 868px) {
-    font-size: 0.9rem;
-  }
 `;
 
 const TweetFooterButton = styled("button")`

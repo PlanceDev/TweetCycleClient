@@ -13,33 +13,33 @@ import axios from "axios";
 import { SOLID_APP_API_SERVER, SOLID_APP_MODE } from "../../../config";
 import { useLead } from "../../../stores/leadStore";
 
-export default function AddContact({ setIsAddContact }) {
-  const [lead, { addContact }] = useLead();
+export default function EditContact({ setIsEditContact, contact }) {
+  const [lead, { editContact }] = useLead();
   const [newContact, setNewContact] = createSignal({
     lead: lead._id,
     company: lead.company,
-    name: "",
-    title: "",
-    email: "",
-    phone: "",
-    twitter: "",
-    url: "",
-    location: "",
+    name: contact.name,
+    title: contact.title,
+    email: contact.email,
+    phone: contact.phone,
+    twitter: contact.twitter,
+    url: contact.url,
+    location: contact.location,
   });
 
-  const handleAddContact = () => {
+  const handleEditContact = () => {
     setNewContact({ ...newContact(), lead: lead._id });
 
     axios
-      .post(`${SOLID_APP_API_SERVER}/contact`, newContact(), {
+      .put(`${SOLID_APP_API_SERVER}/contact/${contact._id}`, newContact(), {
         withCredentials: true,
       })
       .then((res) => {
         if (!res.status === 200)
-          return toast.error("Error adding contact, please try again later.");
+          return toast.error("Error updating contact, please try again later.");
 
-        addContact(res.data.contact);
-        setIsAddContact(false);
+        editContact(res.data.contact);
+        setIsEditContact(false);
       })
       .catch((err) => {
         console.log(err);
@@ -48,12 +48,12 @@ export default function AddContact({ setIsAddContact }) {
   };
 
   return (
-    <AddContactContainer>
-      <AddContactHeader>
-        <h1>Add Contact</h1>
-      </AddContactHeader>
+    <EditContactContainer>
+      <EditContactHeader>
+        <h1>Edit Contact</h1>
+      </EditContactHeader>
 
-      <AddContactInput
+      <EditContactInput
         type="text"
         placeholder="Name"
         value={newContact().name}
@@ -62,7 +62,7 @@ export default function AddContact({ setIsAddContact }) {
         }
       />
 
-      <AddContactInput
+      <EditContactInput
         type="text"
         placeholder="Title"
         value={newContact().title}
@@ -71,7 +71,7 @@ export default function AddContact({ setIsAddContact }) {
         }
       />
 
-      <AddContactInput
+      <EditContactInput
         type="tel"
         placeholder="Phone"
         value={newContact().phone}
@@ -80,7 +80,7 @@ export default function AddContact({ setIsAddContact }) {
         }
       />
 
-      <AddContactInput
+      <EditContactInput
         type="text"
         placeholder="Email"
         value={newContact().email}
@@ -89,7 +89,7 @@ export default function AddContact({ setIsAddContact }) {
         }
       />
 
-      <AddContactInput
+      <EditContactInput
         type="text"
         placeholder="Twitter"
         value={newContact().twitter}
@@ -98,14 +98,14 @@ export default function AddContact({ setIsAddContact }) {
         }
       />
 
-      <AddContactInput
+      <EditContactInput
         type="text"
         placeholder="URL"
         value={newContact().url}
         onInput={(e) => setNewContact({ ...newContact(), url: e.target.value })}
       />
 
-      <AddContactInput
+      <EditContactInput
         type="text"
         placeholder="Location"
         value={newContact().location}
@@ -114,17 +114,15 @@ export default function AddContact({ setIsAddContact }) {
         }
       />
 
-      <AddContactFooter>
-        <span onClick={() => setIsAddContact(false)}>Cancel</span>
-        <AddContactButton onClick={handleAddContact}>
-          Add Contact
-        </AddContactButton>
-      </AddContactFooter>
-    </AddContactContainer>
+      <EditContactFooter>
+        <span onClick={() => setIsEditContact(false)}>Cancel</span>
+        <EditContactButton onClick={handleEditContact}>Save</EditContactButton>
+      </EditContactFooter>
+    </EditContactContainer>
   );
 }
 
-const AddContactContainer = styled("div")`
+const EditContactContainer = styled("div")`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -147,7 +145,7 @@ const AddContactContainer = styled("div")`
   }
 `;
 
-const AddContactHeader = styled("div")`
+const EditContactHeader = styled("div")`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -156,7 +154,7 @@ const AddContactHeader = styled("div")`
   margin-bottom: 1rem;
 `;
 
-const AddContactInput = styled("input")`
+const EditContactInput = styled("input")`
   width: 100%;
   height: 2rem;
   border: 1px solid #ccc;
@@ -169,7 +167,7 @@ const AddContactInput = styled("input")`
   }
 `;
 
-const AddContactFooter = styled("div")`
+const EditContactFooter = styled("div")`
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -188,7 +186,7 @@ const AddContactFooter = styled("div")`
   }
 `;
 
-const AddContactButton = styled("button")`
+const EditContactButton = styled("button")`
   display: flex;
   justify-content: center;
   align-items: center;
