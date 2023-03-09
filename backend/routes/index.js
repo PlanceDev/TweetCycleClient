@@ -23,7 +23,7 @@ router.use("/auth", authRoutes);
 // @route   /twitter/*
 // @desc    Routes for twitter authentication
 // @access  Private
-router.use("/twitter", protectedRoute, twitterAuthRoutes);
+router.use("/twitter", twitterAuthRoutes);
 
 // @route   /tweet/*
 // @desc    Routes for tweets

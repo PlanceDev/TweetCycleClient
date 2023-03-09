@@ -16,17 +16,16 @@ export default function ConnectTwitter() {
   };
 
   createEffect(() => {
-    if (!user.isAuth) return;
-
     axios
       .get(`${SOLID_APP_API_SERVER}/twitter/twitter-url`, {
         withCredentials: true,
       })
       .then((res) => {
         if (res.status !== 200) {
+          console.log(res);
           return;
-          // return toast.error("Something went wrong! Please try again later.");
         }
+
         setTwitterUrl(res.data);
       })
       .catch((err) => {
