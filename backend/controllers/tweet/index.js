@@ -40,12 +40,6 @@ const removeFromS3 = async (key) => {
 // @access  Private
 exports.createTweet = async (req, res) => {
   try {
-    if (req.user.status !== "active") {
-      return res
-        .status(402)
-        .send({ error: "Your account must be active to create a tweet." });
-    }
-
     if (!req.user.twitterId) {
       return res
         .status(401)
