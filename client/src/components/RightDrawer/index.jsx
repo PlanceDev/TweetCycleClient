@@ -162,6 +162,11 @@ export default function TemporaryDrawer() {
         { withCredentials: true }
       )
       .then((res) => {
+        if (res.status === 400) {
+          toast.error("Tweets can not be empty. Please add some text.");
+          return;
+        }
+
         if (res.status !== 200) {
           toast.error("Something went wrong. Please try again.");
           return;
