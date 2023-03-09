@@ -14,9 +14,7 @@ const routes = require("./routes");
 const { SendTweets } = require("./utils/automateTweets");
 const { handleCompletedPayment } = require("./utils/stripeHooks");
 
-const setupWebSocketServer = require("./utils/websocket");
 const server = http.createServer(app);
-const wss = setupWebSocketServer(server);
 
 const rateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
