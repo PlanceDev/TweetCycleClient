@@ -1,5 +1,5 @@
 const { protectedRoute } = require("./protected");
-const { payWall } = require("./paywall");
+const { payWall } = require("./payWall");
 
 module.exports = {
   protectedRoute,
