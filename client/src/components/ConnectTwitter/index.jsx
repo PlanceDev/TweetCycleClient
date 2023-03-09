@@ -12,26 +12,19 @@ export default function ConnectTwitter() {
   const [user, { initializeUser }] = useUser();
 
   const handleTwitterLogin = () => {
-    console.log(twitterUrl());
-    window.open(twitterUrl(), "_self");
-  };
+    console.log("handleTwitterLogin");
 
-  onMount(() => {
     axios
       .get(`${SOLID_APP_API_SERVER}/twitter/twitter-url`, {
         withCredentials: true,
       })
       .then((res) => {
-        if (res.status !== 200) {
-          console.log(res);
-        }
-
-        setTwitterUrl(res.data);
+        window.open(res.data, "_self");
       })
       .catch((err) => {
         console.log(err);
       });
-  });
+  };
 
   return (
     <>
