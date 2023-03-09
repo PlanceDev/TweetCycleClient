@@ -43,16 +43,16 @@ exports.login = async (req, res) => {
     const user = await User.login(req.body.email, req.body.pw);
 
     if (!user) {
-      return res.status(user.status).send({
+      return res.status(404).send({
         error: "Invalid Credentials",
         message: "Invalid Credentials",
       });
     }
 
-    if (user.status) {
-      return res.status(user.status).send({
-        error: user.message,
-        message: user.message,
+    if (user.status === 417) {
+      return res.status(417).send({
+        error: "Email not verified",
+        message: "Please verify your email address",
       });
     }
 
@@ -107,7 +107,6 @@ exports.login = async (req, res) => {
       subscription,
     });
   } catch (e) {
-    console.log(e);
     return res.status(e.status || 500).send({ error: e.message });
   }
 };

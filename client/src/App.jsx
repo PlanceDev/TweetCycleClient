@@ -71,6 +71,7 @@ function App() {
       return response;
     },
     async (error) => {
+      // If the user is not authenticated, redirect them to the login page
       if (error.response.status === 440) {
         if (user) {
           logoutUser();
@@ -81,6 +82,7 @@ function App() {
         return Promise.reject(error);
       }
 
+      // If the users subscription has expired, redirect them to the billing page
       if (error.response.status === 402) {
         navigate("/a/account/billing");
 
@@ -90,8 +92,8 @@ function App() {
         return Promise.reject(error);
       }
 
-      // TODO throw error instead. So we can properly handle errors in the .catch() block
-      return error;
+      // return the error response
+      return error.response;
     }
   );
 

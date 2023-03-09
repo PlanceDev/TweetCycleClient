@@ -59,8 +59,6 @@ export default function Login() {
           withCredentials: true,
         })
         .then((res) => {
-          console.log(res.status);
-
           if (res.status === 417) {
             navigate("/auth/resend-email");
             return toast.error("You must verify your email first!");
