@@ -10,7 +10,6 @@ import { useDrawer } from "../../stores/rightDrawerStore";
 import { useTweet } from "../../stores/tweetStore";
 import { useUser } from "../../stores/userStore";
 import { WriteTweetButton } from "../../components/Styles";
-import ConnectTwitter from "../ConnectTwitter";
 import axios from "axios";
 import { SOLID_APP_API_SERVER } from "../../config";
 
@@ -57,6 +56,21 @@ export default function Topbar() {
     });
     setRightDrawerType("createTweet");
     openRightDrawer();
+  };
+
+  const handleTwitterLogin = () => {
+    console.log("handleTwitterLogisn");
+
+    axios
+      .get(`${SOLID_APP_API_SERVER}/twitter/twitter-url`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        window.open(res.data, "_self");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   // Create click event listener to close the popper when clicking outside of it
@@ -120,7 +134,10 @@ export default function Topbar() {
           </Show>
 
           <Show when={!user.twitterId}>
-            <ConnectTwitter />
+            <WriteTweetButton onClick={handleTwitterLogin}>
+              <RiDesignQuillPenFill />
+              <span>Connect Twitter</span>
+            </WriteTweetButton>
           </Show>
         </ContainerRight>
       </Container>
