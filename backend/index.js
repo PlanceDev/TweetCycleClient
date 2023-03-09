@@ -34,6 +34,14 @@ app.post(
   handleCompletedPayment
 );
 
+if (process.env.NODE_ENV === "production") {
+  app.use((req, res, next) => {
+    if (req.header("x-forwarded-proto") !== "https")
+      res.redirect(`https://${req.header("host")}${req.url}`);
+    else next();
+  });
+}
+
 app.use(bodyParser.urlencoded({ extended: true })); // Must be placed above mongoSanitize for mongoSanitize to work
 app.use(bodyParser.json({ limit: "50mb" })); // Must be placed above mongoSanitize for mongoSanitize to work
 app.use(mongoSanitize({})); // Data sanitization against NoSQL query injection
@@ -44,12 +52,6 @@ app.use("/api", rateLimiter, routes);
 // Point the server to the build folder of the app
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../client/dist")));
-
-  app.use((req, res, next) => {
-    if (req.header("x-forwarded-proto") !== "https")
-      res.redirect(`https://${req.header("host")}${req.url}`);
-    else next();
-  });
 
   app.get("*", (req, res) => {
     res.sendFile(path.resolve(__dirname, "../client", "dist", "index.html"));
