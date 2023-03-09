@@ -16,7 +16,7 @@ export default function ConnectTwitter() {
     window.open(twitterUrl(), "_self");
   };
 
-  createEffect(() => {
+  onMount(() => {
     axios
       .get(`${SOLID_APP_API_SERVER}/twitter/twitter-url`, {
         withCredentials: true,
@@ -24,13 +24,12 @@ export default function ConnectTwitter() {
       .then((res) => {
         if (res.status !== 200) {
           console.log(res);
-          return;
         }
 
         setTwitterUrl(res.data);
       })
       .catch((err) => {
-        return;
+        console.log(err);
       });
   });
 
