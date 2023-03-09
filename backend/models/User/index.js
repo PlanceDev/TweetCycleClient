@@ -196,37 +196,41 @@ userSchema.statics.register = async function (profile) {
 
 // login user
 userSchema.statics.login = async function (email, password) {
-  const user = await this.findOne({ email });
+  try {
+    const user = await this.findOne({ email });
 
-  if (!user) {
-    const err = new Error("Invalid Credentials");
-    err.status = 404;
-    err.message = "Invalid Credentials";
-    throw err;
+    if (!user) {
+      const err = new Error("Invalid Credentials");
+      err.status = 404;
+      err.message = "Invalid Credentials";
+      throw err;
+    }
+
+    if (!user.isEmailVerified) {
+      const err = new Error("Email not verified");
+      err.status = 417;
+      err.message = "Email not verified";
+      throw err;
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      const err = new Error("Invalid Credentials");
+      err.status = 404;
+      err.message = "Invalid Credentials";
+      throw err;
+    }
+
+    // remove access tokens from the response
+    user.twitterAccessToken = undefined;
+    user.twitterAccessTokenSecret = undefined;
+    user.__v = undefined;
+
+    return user;
+  } catch (err) {
+    return err;
   }
-
-  if (!user.isEmailVerified) {
-    const err = new Error("Email not verified");
-    err.status = 417;
-    err.message = "Email not verified";
-    throw err;
-  }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-
-  if (!isMatch) {
-    const err = new Error("Invalid Credentials");
-    err.status = 404;
-    err.message = "Invalid Credentials";
-    throw err;
-  }
-
-  // remove access tokens from the response
-  user.twitterAccessToken = undefined;
-  user.twitterAccessTokenSecret = undefined;
-  user.__v = undefined;
-
-  return user;
 };
 
 // verify user email

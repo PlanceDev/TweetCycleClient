@@ -59,16 +59,18 @@ export default function Login() {
           withCredentials: true,
         })
         .then((res) => {
-          if (res.status === 417) {
+          console.log(res.response.status);
+
+          if (res.response.status === 417) {
             navigate("/auth/resend-email");
             return toast.error("You must verify your email first!");
           }
 
-          if (res.status === 422) {
+          if (res.response.status === 422) {
             return toast.error("All fields are required!");
           }
 
-          if (res.status !== 200) {
+          if (res.response.status !== 200) {
             console.log("invalid creds");
             return toast.error("Invalid credentials!");
           }

@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 // Create a transporter to send emails with nodemailer using gmail
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  secure: true,
+  secure: process.env.NODE_ENV !== "development",
   auth: {
     user: "jeremy@tweetcycle.com",
     pass: process.env.GMAIL_APP_PASSWORD,

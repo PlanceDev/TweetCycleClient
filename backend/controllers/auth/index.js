@@ -42,7 +42,28 @@ exports.login = async (req, res) => {
   try {
     const user = await User.login(req.body.email, req.body.pw);
 
+    if (!user) {
+      return res.status(user.status).send({
+        error: "Invalid Credentials",
+        message: "Invalid Credentials",
+      });
+    }
+
+    if (user.status) {
+      return res.status(user.status).send({
+        error: user.message,
+        message: user.message,
+      });
+    }
+
     const subscription = await Subscription.findOne({ owner: user._id });
+
+    if (!subscription) {
+      return res.status(404).send({
+        error: "Subscription not found",
+        message: "Subscription not found",
+      });
+    }
 
     const accessToken = jwt.sign(
       {

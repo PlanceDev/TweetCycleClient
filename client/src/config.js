@@ -1,4 +1,4 @@
-let SOLID_APP_MODE = "production";
+let SOLID_APP_MODE = "development";
 let SOLID_APP_API_SERVER;
 
 if (SOLID_APP_MODE === "development") {
