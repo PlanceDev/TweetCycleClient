@@ -30,7 +30,6 @@ exports.getCheckoutSession = async (req, res) => {
       line_items: [{ price: process.env.PREMIUM_PRICE_ID, quantity: 1 }],
       mode: "subscription",
     });
-
     return res.status(200).send(session);
   } catch (error) {
     console.log(error);

@@ -3,6 +3,7 @@ const OAuth = require("oauth"),
   qs = require("querystring");
 const { TwitterApi } = require("twitter-api-v2");
 const Auth = OAuth.OAuth;
+const { Subscription } = require("../../models");
 
 const twitterConsumerKey = process.env.CONSUMER_KEY;
 const twitterConsumerSecret = process.env.CONSUMER_SECRET;
@@ -108,15 +109,27 @@ exports.connectTwitter = async (req, res) => {
       user.twitterAccessToken = undefined;
       user.twitterAccessTokenSecret = undefined;
 
+      const subscription = await Subscription.findOne({
+        user: user._id,
+      });
+
+      if (!subscription) {
+        return res.status(440).send({
+          error: "Subscription not found. Please try again.",
+        });
+      }
+
       // Create a JWT token
       const token = jwt.sign(
         {
-          _id: req.user._id,
-          twitterId: getCurrentUser.id,
-          twitterUsername: getCurrentUser.screen_name,
-          plan: req.user.plan,
+          _id: user._id,
+          twitterId: user.twitterId || null,
+          twitterUsername: user.twitterUsername || null,
+          plan: subscription.plan,
+          status: subscription.status,
+          currentPeriodEnd: subscription.currentPeriodEnd,
         },
-        process.env.JWT_SECRET,
+        process.env.ACCESS_TOKEN_SECRET,
         {
           expiresIn: "7d",
         }
