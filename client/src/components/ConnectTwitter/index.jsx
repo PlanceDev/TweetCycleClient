@@ -12,7 +12,7 @@ export default function ConnectTwitter() {
   const [user, { initializeUser }] = useUser();
 
   const handleTwitterLogin = () => {
-    console.log("handleTwitterLogin");
+    console.log("handleTwitterLogisn");
 
     axios
       .get(`${SOLID_APP_API_SERVER}/twitter/twitter-url`, {
