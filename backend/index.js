@@ -45,6 +45,12 @@ app.use("/api", rateLimiter, routes);
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../client/dist")));
 
+  app.use((req, res, next) => {
+    if (req.header("x-forwarded-proto") !== "https")
+      res.redirect(`https://${req.header("host")}${req.url}`);
+    else next();
+  });
+
   app.get("*", (req, res) => {
     res.sendFile(path.resolve(__dirname, "../client", "dist", "index.html"));
   });
