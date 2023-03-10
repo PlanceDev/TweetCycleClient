@@ -70,7 +70,7 @@ exports.createTweet = async (req, res) => {
 
     // Create a new tweet
     const tweet = new Tweet({
-      _id: req.body._id,
+      // _id: req.body._id,
       creator: req.user._id,
       publishDate: publishDate,
       thread: [],

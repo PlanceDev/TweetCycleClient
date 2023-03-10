@@ -172,7 +172,8 @@ export default function TemporaryDrawer() {
           return;
         }
         toast.success("Tweet scheduled successfully!");
-        addScheduledTweets({ ...tweet });
+        // addScheduledTweets({ ...tweet });
+        addScheduledTweets(res.data.tweet);
         closeRightDrawer();
       })
       .catch((err) => {
