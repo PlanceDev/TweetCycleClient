@@ -80,15 +80,13 @@ const handleTweet = async (tweet, T) => {
 
       const photos = await downloadAndUploadImages(T, t.attachments);
 
-      // const newThread = await T.v1.reply(t.body, thread.id_str, {
-      //   media_ids: photos,
-      // });
-
-      // thread = newThread;
-
-      await T.v1.reply(t.body, thread.id_str, {
+      const newThread = await T.v1.reply(t.body, thread.id_str, {
         media_ids: photos,
       });
+
+      console.log(newThread);
+
+      thread = newThread;
     })
   );
 
