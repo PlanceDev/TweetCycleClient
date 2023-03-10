@@ -22,15 +22,15 @@ export default function Home() {
             <HeroBannerLeftText>
               <span>
                 <p>
-                  <HighlightedText> INTUITIVE </HighlightedText>
-                  <span>TWITTER MANAGEMEMENT</span>
+                  <HighlightedText> EASILY </HighlightedText>
+                  <span>GENERATE & SCHEDULE TWEETS</span>
                 </p>
 
                 <h1>
-                  AI powered Twitter <HighlightedText>growth</HighlightedText>
+                  AI powered tweet <HighlightedText>generator</HighlightedText>
                 </h1>
 
-                <p>Generate. Schedule. Automate.</p>
+                <p>Generate. Schedule. Relax.</p>
               </span>
             </HeroBannerLeftText>
 
@@ -74,11 +74,9 @@ export default function Home() {
               <h4>Generate</h4>
 
               <p>
-                Personalized Content Creation: Our tool generates content that
-                is tailored to your audience and reflects your unique voice. We
-                use machine learning algorithms to identify the topics that your
-                followers are interested in, and then we create tweets that are
-                both engaging and informative.
+                Our tool generates content that is tailored to you and your
+                unique voice. We use AI to create tweets & threads that are both
+                engaging and informative.
               </p>
             </AboutItem>
 
@@ -86,24 +84,12 @@ export default function Home() {
               <h4>Schedule</h4>
 
               <p>
-                Plan and create your tweets ahead of time and schedule them to
-                be posted at a later date and time for maximum engagement and
-                reach. This includes the ability to schedule threads and tweets.
+                Plan and easily create your tweets & threads ahead of time using
+                our AI. Then post it through our app immediately, or schedule
+                them to be posted at a later date for maximum engagement and
+                reach.
               </p>
             </AboutItem>
-
-            {/* <AboutItem>
-              <h4>Automate</h4>
-
-              <p>
-                Fully autonomous: We take care of everything. Our tool will
-                generate and schedule your tweets for you, so you can focus on
-                other aspects of your business. You can also use our tool to
-                find new followers and engage with them. We will automatically
-                send them a direct message, follow them back, and like and
-                respond to replies to your tweets.
-              </p>
-            </AboutItem> */}
 
             <AboutItem>
               <h4>
