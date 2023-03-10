@@ -75,12 +75,12 @@ const handleTweet = async (tweet, T) => {
 
   // Reply to tweets to create thread
   await Promise.all(
-    tweet.thread.map(async (t) => {
+    tweet.thread.map(async (t, i) => {
       if (t.id === tweet.thread[0].id) return;
 
       const photos = await downloadAndUploadImages(T, t.attachments);
 
-      const newThread = await T.v1.reply(t.body, thread.id_str, {
+      const newThread = await T.v1.reply(t.body, thread[i - 1].id_str, {
         media_ids: photos,
       });
 
