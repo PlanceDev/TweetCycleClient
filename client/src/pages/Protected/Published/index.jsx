@@ -41,11 +41,10 @@ export default function Published() {
   const [days, setDays] = createSignal([]);
 
   const handleViewTweet = (tweetId) => {
-    let url = `https://twitter.com/${user.twitterUsername}/status/${tweetId}`;
-    console.log(url);
-    // initializeTweet(pt);
-    // setRightDrawerType("view");
-    // openRightDrawer();
+    window.open(
+      `https://twitter.com/${user.twitterUsername}/status/${tweetId}`,
+      "_blank"
+    );
   };
 
   createEffect(() => {

@@ -191,7 +191,7 @@ export default function Home() {
             </SocialsItem>
 
             <SocialsItem>
-              <a href="#">
+              <a href="https://discord.gg/dkNVFzgkXU">
                 <BsDiscord />
               </a>
             </SocialsItem>
