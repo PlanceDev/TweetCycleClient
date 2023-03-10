@@ -36,7 +36,7 @@ export default function TemporaryDrawer() {
   const [newImages, setNewImages] = createSignal([]);
   const [isImproving, setIsImproving] = createSignal(false);
 
-  const [rightDrawer, { closeRightDrawer }] = useDrawer();
+  const [rightDrawer, { closeRightDrawer, setRightDrawerType }] = useDrawer();
   const [scheduledTweets, { addScheduledTweets, editScheduledTweets }] =
     useSchedule();
 
@@ -299,6 +299,7 @@ export default function TemporaryDrawer() {
     setIsSchedule(false);
     setNewImages([]);
     setRemovedImages([]);
+    setRightDrawerType("createTweet");
   };
 
   const drawer = () => (
