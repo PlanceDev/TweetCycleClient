@@ -87,13 +87,14 @@ export default function TweetGenerator() {
 
   // Open the right drawer and initialize the tweet with the generated tweet
   const handleEditTweet = () => {
+    setRightDrawerType("createTweet");
+
     initializeTweet({
       id: Math.floor(Math.random() * 1000000),
       publishDate: new Date(),
       thread: generatedThread(),
     });
 
-    setRightDrawerType("createTweet");
     openRightDrawer();
   };
 

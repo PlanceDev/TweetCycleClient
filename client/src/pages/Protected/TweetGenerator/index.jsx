@@ -47,6 +47,8 @@ export default function TweetGenerator() {
 
   // Generate tweets
   const handleGenerateTweets = (e) => {
+    setRightDrawerType("createTweet");
+
     e.preventDefault();
 
     if (selectedStyles().length === 0) {

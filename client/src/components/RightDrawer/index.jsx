@@ -245,9 +245,9 @@ export default function TemporaryDrawer() {
         }
         editScheduledTweets(id, { ...tweet });
         toast.success("Tweet updated successfully!");
-        closeRightDrawer();
         setRemovedImages([]);
         setNewImages([]);
+        closeRightDrawer();
         setRightDrawerType("createTweet");
       })
       .catch((err) => {
@@ -473,6 +473,7 @@ export default function TemporaryDrawer() {
                   <CancelButton onClick={handleCloseDrawer}>
                     Cancel
                   </CancelButton>
+
                   <SubmitButton
                     onClick={() => handleEditScheduledTweet(tweet._id)}
                   >
@@ -493,7 +494,7 @@ export default function TemporaryDrawer() {
                         <CancelButton
                           onClick={() => setIsSchedule(!isSchedule())}
                         >
-                          Cancel
+                          Tweet Now
                         </CancelButton>
 
                         <SubmitButton onClick={() => handleScheduleTweet()}>
