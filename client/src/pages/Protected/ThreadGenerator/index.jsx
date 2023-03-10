@@ -86,7 +86,7 @@ export default function TweetGenerator() {
   };
 
   // Open the right drawer and initialize the tweet with the generated tweet
-  const handleEditTweet = (body) => {
+  const handleEditTweet = () => {
     initializeTweet({
       id: Math.floor(Math.random() * 1000000),
       publishDate: new Date(),

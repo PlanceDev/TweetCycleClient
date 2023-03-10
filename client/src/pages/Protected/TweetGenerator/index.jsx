@@ -75,7 +75,6 @@ export default function TweetGenerator() {
           return toast.error("Error generating tweets");
         }
 
-        console.log(res.data);
         setGeneratedTweets(res.data);
       })
       .catch((err) => {
@@ -88,6 +87,8 @@ export default function TweetGenerator() {
 
   // Open the right drawer and initialize the tweet with the generated tweet
   const handleEditTweet = (body) => {
+    setRightDrawerType("createTweet");
+
     initializeTweet({
       id: Math.floor(Math.random() * 1000000),
       publishDate: new Date(),
@@ -100,7 +101,6 @@ export default function TweetGenerator() {
       ],
     });
 
-    setRightDrawerType("createTweet");
     openRightDrawer();
   };
 
