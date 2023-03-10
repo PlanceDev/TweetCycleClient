@@ -72,25 +72,38 @@ const initialTweet = async (tweet, T) => {
 // Create thread of tweets
 const handleTweet = async (tweet, T) => {
   // let thread = await initialTweet(tweet, T);
-  let thread;
 
-  // Reply to tweets to create thread
+  // // Reply to tweets to create thread
+  // await Promise.all(
+  //   tweet.thread.map(async (t, i) => {
+  //     if (t.id === tweet.thread[0].id) return;
+
+  //     const photos = await downloadAndUploadImages(T, t.attachments);
+
+  //     const newThread = await T.v1.reply(t.body, thread.id_str, {
+  //       media_ids: photos,
+  //     });
+
+  //     thread = newThread;
+  //   })
+  // );
+
+  let thread = [];
+
   await Promise.all(
     tweet.thread.map(async (t, i) => {
-      if (t.id === tweet.thread[0].id) {
-        thread = await initialTweet(tweet, T);
-        return;
-      }
-
       const photos = await downloadAndUploadImages(T, t.attachments);
 
-      const newThread = await T.v1.reply(t.body, thread.id_str, {
+      const newThread = {
+        status: t.body,
         media_ids: photos,
-      });
+      };
 
-      thread = newThread;
+      thread.push(newThread);
     })
   );
+
+  await T.v1.tweetThread(thread);
 
   tweet.status = "published";
   await tweet.save();
