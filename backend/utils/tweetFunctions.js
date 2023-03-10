@@ -84,7 +84,7 @@ const handleTweet = async (tweet, T) => {
         media_ids: photos,
       });
 
-      console.log(newThread);
+      console.log(newThread.id_str);
 
       thread = newThread;
     })
