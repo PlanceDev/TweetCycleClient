@@ -22,7 +22,7 @@ import { toast } from "solid-toast";
 
 export default function TweetGenerator() {
   const [tweet, { initializeTweet }] = useTweet();
-  const [rightDrawer, { openRightDrawer }] = useDrawer();
+  const [rightDrawer, { openRightDrawer, setRightDrawerType }] = useDrawer();
   const [user] = useUser();
   const [selectedStyles, setSelectedStyles] = createSignal([]);
   const [generatingTweets, setGeneratingTweets] = createSignal(false);
@@ -92,6 +92,8 @@ export default function TweetGenerator() {
       publishDate: new Date(),
       thread: generatedThread(),
     });
+
+    setRightDrawerType("createTweet");
     openRightDrawer();
   };
 
