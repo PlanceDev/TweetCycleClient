@@ -175,6 +175,7 @@ export default function TemporaryDrawer() {
         // addScheduledTweets({ ...tweet });
         addScheduledTweets(res.data.tweet);
         closeRightDrawer();
+        setRightDrawerType("createTweet");
       })
       .catch((err) => {
         toast.error("Something went wrong. Please try again.");
@@ -209,6 +210,7 @@ export default function TemporaryDrawer() {
 
         toast.success("Successfully tweeted!");
         closeRightDrawer();
+        setRightDrawerType("createTweet");
       })
       .catch((err) => {
         console.log(err);
@@ -246,6 +248,7 @@ export default function TemporaryDrawer() {
         closeRightDrawer();
         setRemovedImages([]);
         setNewImages([]);
+        setRightDrawerType("createTweet");
       })
       .catch((err) => {
         console.log(err);
