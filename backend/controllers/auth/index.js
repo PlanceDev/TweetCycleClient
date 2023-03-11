@@ -28,7 +28,7 @@ exports.register = async (req, res) => {
       verificationToken.token
     );
 
-    return res.send({ message: user }).status(200);
+    return res.send({ user });
   } catch (e) {
     console.log(e);
     return res.status(e.status || 500).send({ error: e.message });
