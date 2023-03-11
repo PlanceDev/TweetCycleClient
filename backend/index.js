@@ -36,9 +36,19 @@ app.post(
 
 if (process.env.NODE_ENV === "production") {
   app.use((req, res, next) => {
+    // redirect http to https
     if (req.header("x-forwarded-proto") !== "https")
-      res.redirect(`https://${req.header("host")}${req.url}`);
-    else next();
+      return res.redirect(`https://${req.header("host")}${req.url}`);
+
+    // replace www with non-www
+    if (req.header("host").startsWith("www.")) {
+      return res.redirect(
+        301,
+        `https://${req.header("host").replace("www.", "")}${req.url}`
+      );
+    }
+
+    next();
   });
 }
 
