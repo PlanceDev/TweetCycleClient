@@ -80,7 +80,7 @@ export default function Register() {
             return toast.error("All fields are required!");
           }
 
-          if (res.status !== 200 && res.status !== 201) {
+          if (res.status !== 200 && res.status !== 201 && res.status !== 204) {
             return toast.error("Something went wrong! Please try again later.");
           }
 
