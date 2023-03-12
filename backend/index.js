@@ -23,7 +23,11 @@ const rateLimiter = rateLimit({
 
 app.use(
   cors({
-    origin: [process.env.DEVELOPMENT_URL, process.env.PRODUCTION_URL],
+    origin: [
+      process.env.DEVELOPMENT_URL,
+      process.env.PRODUCTION_URL,
+      "http://127.0.0.1:3001",
+    ],
     credentials: true,
   })
 );

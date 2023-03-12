@@ -24,18 +24,7 @@ exports.generateTweets = async (req, res) => {
       return res.status(400).send("Please select 1-3 styles");
     }
 
-    const newPrompt = `Please give me a ${selectedStyle} 
-    tweet in the style of an expert in the field about ${prompt}.
-    Given the style of the prompt think of the most influential person in the field that has a large cult following and mimick them.
-    Be sure to make it as viral as possible.
-    Be sure to make it seem like it is coming from the person you are in style of.
-    Be sure to make it seem as though a person reading would want to retweet it.
-    Be sure to make it seem as though a human wrote it.
-    Do not explicitly say that you are an expert in the field.
-    Do not include the persons name who it is in style of. 
-    Only include the tweet body.
-    Do not include quotes. Do not include ${prompt}.
-    Make sure the tweet is less than 280 characters.`;
+    const newPrompt = `Create a ${selectedStyle} tweet in the style of an expert in the field about ${prompt}. Do not include the prompt. The generated text MUST NOT be more than 200 characters.`;
 
     const promises = Array(6)
       .fill()
@@ -87,7 +76,7 @@ exports.improveTweet = async (req, res) => {
 
     const prompt = req.body.body;
 
-    const newPrompt = `Please improve this tweet and keep it under 280 characters: ${prompt}`;
+    const newPrompt = `Please improve this tweet and keep it under 250 characters: ${prompt}`;
 
     const completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
