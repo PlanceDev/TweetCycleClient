@@ -70,7 +70,7 @@ export default function Contacts() {
             <FaSolidCircleInfo />
             <p>
               You can create a new contact by creating a new lead or adding more
-              contacts to and already exisiting lead.
+              contacts to an already exisiting lead.
             </p>
           </ContactInformation>
 

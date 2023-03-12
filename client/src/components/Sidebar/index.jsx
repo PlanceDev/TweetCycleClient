@@ -1,29 +1,14 @@
 import { styled } from "solid-styled-components";
 import { useNavigate, A } from "@solidjs/router";
 import { createEffect, createSignal, Show } from "solid-js";
-import {
-  HiSolidMail,
-  HiSolidUsers,
-  HiOutlineMenu,
-  HiOutlineTemplate,
-  HiSolidCog,
-  HiSolidCollection,
-  HiSolidLogin,
-  HiSolidLogout,
-  HiSolidCalendar,
-  HiSolidClipboardList,
-  HiOutlineTable,
-} from "solid-icons/hi";
-import { BiRegularTargetLock, BiSolidContact } from "solid-icons/bi";
-import { BsClockHistory, BsGearFill, BsTwitter } from "solid-icons/bs";
-import { BsFileEarmarkTextFill } from "solid-icons/bs";
-import { FaSolidClipboardCheck } from "solid-icons/fa";
+import { HiSolidLogin, HiSolidLogout } from "solid-icons/hi";
+import { BiSolidContact } from "solid-icons/bi";
+import { BsGearFill, BsTwitter } from "solid-icons/bs";
+
 import { BiSolidBusiness } from "solid-icons/bi";
 import { AiOutlineOrderedList } from "solid-icons/ai";
-import { FaSolidRepeat, FaRegularCalendarDays } from "solid-icons/fa";
-import { IoLogOutSharp } from "solid-icons/io";
+import { FaRegularCalendarDays } from "solid-icons/fa";
 import { BiRegularLogOutCircle } from "solid-icons/bi";
-import { BsPeopleFill } from "solid-icons/bs";
 import { useUser } from "../../stores/userStore";
 import axios from "axios";
 import { SOLID_APP_API_SERVER } from "../../config";
